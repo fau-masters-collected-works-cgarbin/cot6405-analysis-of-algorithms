@@ -11,19 +11,25 @@ https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.
 import itertools
 
 
+def _lcs_lens(xs, ys):
+    '''Calculates the cost for the sequences.
+
+    This cost is used to decide where to split the sequences.'''
+    # Start with zero costs
+    curr = list(itertools.repeat(0, 1 + len(ys)))
+    # Go through the sequences and adjust costs
+    for x in xs:
+        prev = list(curr)
+        for i, y in enumerate(ys):
+            if x == y:
+                curr[i + 1] = prev[i] + 1
+            else:
+                curr[i + 1] = max(curr[i], prev[i + 1])
+    return curr
+
+
 def lcs(xs, ys):
     '''Returns a longest common subsequence of xs, ys.'''
-    def lcs_lens(xs, ys):
-        curr = list(itertools.repeat(0, 1 + len(ys)))
-        for x in xs:
-            prev = list(curr)
-            for i, y in enumerate(ys):
-                if x == y:
-                    curr[i + 1] = prev[i] + 1
-                else:
-                    curr[i + 1] = max(curr[i], prev[i + 1])
-        return curr
-
     nx, ny = len(xs), len(ys)
     if nx == 0:
         # Empty input - got to the end of the sequence
@@ -38,8 +44,10 @@ def lcs(xs, ys):
         xb, xe = xs[:i], xs[i:]
 
         # Find the node to split the xs/ys matrix and split it into two
-        ll_b = lcs_lens(xb, ys)
-        ll_e = lcs_lens(xe[::-1], ys[::-1])
+        # Cost for the top-left part (first half of xs + ys)
+        ll_b = _lcs_lens(xb, ys)
+        # Cost for the bottom-right part (inverted second half of xs, ys)
+        ll_e = _lcs_lens(xe[::-1], ys[::-1])
         _, k = max((ll_b[j] + ll_e[ny - j], j)
                    for j in range(ny + 1))
         yb, ye = ys[:k], ys[k:]
