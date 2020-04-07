@@ -207,9 +207,11 @@ print(lcs_hirschberg('HUMAN', 'CHIMPANZEE'))
 random.seed(42)
 
 
-def base(): return random.choice('ACGT')
+def random_dna_sequence(length):
+    '''Generates a random DNA sequece of the given length.'''
+    return ''.join(random.choice('ACTG') for _ in range(length))
 
 
-dna1 = [base() for _ in range(1_000)]
-dna2 = [base() for _ in range(1_000)]
-print(lcs_dp(dna1, dna2))
+dna1 = random_dna_sequence(1_000)
+dna2 = random_dna_sequence(1_000)
+print(lcs_hirschberg(dna1, dna2))
