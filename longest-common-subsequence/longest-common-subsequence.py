@@ -16,6 +16,7 @@ References:
 '''
 from collections import defaultdict, namedtuple
 from itertools import product
+import random
 import itertools
 import functools
 
@@ -200,3 +201,15 @@ test(lcs_hirschberg)
 
 print(lcs_recursive('ABCABC', 'ABC'))
 print(lcs_dp('ABCABC', 'ABC'))
+print(lcs_hirschberg('HUMAN', 'CHIMPANZEE'))
+
+
+random.seed(42)
+
+
+def base(): return random.choice('ACGT')
+
+
+dna1 = [base() for _ in range(1_000)]
+dna2 = [base() for _ in range(1_000)]
+print(lcs_dp(dna1, dna2))
