@@ -59,7 +59,7 @@ def _lcs_grid(xs, ys):
     return grid
 
 
-def lcs(xs, ys):
+def lcs_dp(xs, ys):
     '''Returns a longest common subsequence of xs, ys.'''
     grid = _lcs_grid(xs, ys)
 

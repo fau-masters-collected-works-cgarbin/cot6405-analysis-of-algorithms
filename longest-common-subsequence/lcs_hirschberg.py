@@ -2,6 +2,11 @@
 
 It requires a linear amount of memory, compared to the quadratic amount of
 memory used by the dynamic programming version.
+
+Code based on http://wordaligned.org/articles/longest-common-subsequence.
+
+Algorithm reference:
+https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf
 '''
 import itertools
 
@@ -25,8 +30,10 @@ def lcs(xs, ys):
     elif nx == 1:
         return [xs[0]] if xs[0] in ys else []
     else:
+        # Split xs in two halves
         i = nx // 2
         xb, xe = xs[:i], xs[i:]
+
         ll_b = lcs_lens(xb, ys)
         ll_e = lcs_lens(xe[::-1], ys[::-1])
         _, k = max((ll_b[j] + ll_e[ny - j], j)
