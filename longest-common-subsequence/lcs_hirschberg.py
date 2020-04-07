@@ -26,17 +26,23 @@ def lcs(xs, ys):
 
     nx, ny = len(xs), len(ys)
     if nx == 0:
+        # Empty input - got to the end of the sequence
         return []
     elif nx == 1:
+        # Only one character in the sequence
+        # If it is in the other sequence, it's part of the LCS
         return [xs[0]] if xs[0] in ys else []
     else:
-        # Split xs in two halves
+        # More than one character - split xs into two halves
         i = nx // 2
         xb, xe = xs[:i], xs[i:]
 
+        # Find the node to split the xs/ys matrix and split it into two
         ll_b = lcs_lens(xb, ys)
         ll_e = lcs_lens(xe[::-1], ys[::-1])
         _, k = max((ll_b[j] + ll_e[ny - j], j)
                    for j in range(ny + 1))
         yb, ye = ys[:k], ys[k:]
+
+        # Solve each part of the split matrix
         return lcs(xb, yb) + lcs(xe, ye)
