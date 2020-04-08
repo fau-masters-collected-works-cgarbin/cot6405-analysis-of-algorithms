@@ -37,8 +37,6 @@ def lcs(xs, ys):
     # Try all subsequences, starting with the longest one
     for i in range(len(small), 0, -1):
         for c in itertools.combinations(small, i):
-            sequence = ''.join(c)
-            print('  {}'.format(sequence))
-            if _is_subsequence(sequence, large):
+            if _is_subsequence(''.join(c), large):
                 return list(c)
     return []
