@@ -2,7 +2,7 @@
 
 Run this code after making changes to the algorithms.
 '''
-
+import lcs_brute_force
 import lcs_dynamic_programming
 import lcs_hirschberg
 import lcs_recursive
@@ -45,6 +45,7 @@ def _test_lcs(fn):
 
 
 def test():
+    _test_lcs(lcs_brute_force.lcs)
     _test_lcs(lcs_recursive.lcs)
     _test_lcs(lcs_dynamic_programming.lcs)
     _test_lcs(lcs_hirschberg.lcs)

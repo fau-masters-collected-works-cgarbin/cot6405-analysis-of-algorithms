@@ -19,6 +19,7 @@ References:
     Tardos.
 '''
 import random
+import lcs_brute_force
 import lcs_dynamic_programming
 import lcs_hirschberg
 import lcs_recursive
