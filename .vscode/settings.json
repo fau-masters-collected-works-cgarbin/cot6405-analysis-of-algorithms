@@ -1,0 +1,12 @@
+{
+    "python.pythonPath": "env/bin/python",
+    "python.testing.pytestArgs": [
+        "weighted-interval-scheduling"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "devskim.ignoreRulesList": [
+        "DS137138"
+    ]
+}
