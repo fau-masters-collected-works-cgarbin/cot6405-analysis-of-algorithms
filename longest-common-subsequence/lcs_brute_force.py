@@ -33,15 +33,12 @@ def lcs(xs, ys):
     '''Returns a longest common subsequence of xs, ys.'''
     # Pick the smallest of the two to generate subsequences
     small, large = (xs, ys) if len(xs) < len(ys) else (ys, xs)
-    print('------')
-    print('Using small={} large={}'.format(small, large))
 
     # Try all subsequences, starting with the longest one
     for i in range(len(small), 0, -1):
-        combinations = [''.join(p) for p in itertools.combinations(small, i)]
-        for c in combinations:
-            print('  {}'.format(c))
-            if _is_subsequence(c, large):
-                print('     {} is subseqeunce'.format(c))
+        for c in itertools.combinations(small, i):
+            sequence = ''.join(c)
+            print('  {}'.format(sequence))
+            if _is_subsequence(sequence, large):
                 return list(c)
     return []
