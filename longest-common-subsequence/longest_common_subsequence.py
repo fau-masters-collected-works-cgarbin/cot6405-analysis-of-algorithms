@@ -14,7 +14,7 @@ References:
 
   - http://wordaligned.org/articles/longest-common-subsequence: code was based
     on this site.
-  - https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf:
+  - https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf: # noqa
     lecture on the topic, using slides from Algorithm Design, Kleinber and
     Tardos.
 '''

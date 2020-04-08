@@ -34,7 +34,7 @@ def _lcs_grid(xs, ys):
     # The cell in each grid
     #   - length: the length of the move to make
     #   - move: the move (direction) for `length`
-    Cell = namedtuple('Cell', ['length', 'move'])
+    Cell = namedtuple('Cell', ['length', 'move'])  # NOSONAR
     # The grid, modeled as a dictionary that returns "empty" if we didn't
     # set a move for a cell (to simplify corner cases)
     grid = defaultdict(lambda: Cell(0, 'e'))
