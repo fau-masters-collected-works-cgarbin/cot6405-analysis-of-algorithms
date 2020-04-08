@@ -12,7 +12,11 @@ Examples:
 
 References:
 
-  - http://wordaligned.org/articles/longest-common-subsequence
+  - http://wordaligned.org/articles/longest-common-subsequence: code was based
+    on this site.
+  - https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf:
+    lecture on the topic, using slides from Algorithm Design, Kleinber and
+    Tardos.
 '''
 import random
 import lcs_dynamic_programming
@@ -20,6 +24,7 @@ import lcs_hirschberg
 import lcs_recursive
 import lcs_test
 
+# Make sure the algorithms work
 lcs_test.test()
 
 
