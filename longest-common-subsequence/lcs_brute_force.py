@@ -6,7 +6,7 @@ common subsequence.
 This is the "extreme" brute force case. It does not attempt any simplification,
 e.g. first use a set to first check if the characters are all present.
 
-The only optimziation we get is from the use of itertools. It will not generate
+The only optimization we get is from the use of itertools. It will not generate
 all combinations up front. It will yield one when asked. This saves memory.
 '''
 
@@ -36,7 +36,9 @@ def lcs(xs, ys):
 
     # Try all subsequences, starting with the longest one
     for i in range(len(small), 0, -1):
+        # Yield one sequence at at time to save memory
         for c in itertools.combinations(small, i):
             if _is_subsequence(c, large):
+                # Stop on the first common subsequence we find
                 return list(c)
     return []
