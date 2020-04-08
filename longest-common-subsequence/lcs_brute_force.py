@@ -31,10 +31,11 @@ def _is_subsequence(sequence, string):
 
 def lcs(xs, ys):
     '''Returns a longest common subsequence of xs, ys.'''
-    # Pick the smallest of the two to generate subsequences
+    # Pick the smallest of the two to generate subsequences and check against
+    # the largest of the two
     small, large = (xs, ys) if len(xs) < len(ys) else (ys, xs)
 
-    # Try all subsequences, starting with the longest one
+    # Try all subsequences, starting with the longest ones
     for i in range(len(small), 0, -1):
         # Yield one sequence at at time to save memory
         for c in itertools.combinations(small, i):

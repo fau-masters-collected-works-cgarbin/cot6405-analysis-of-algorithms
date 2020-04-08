@@ -1,6 +1,10 @@
 '''Verify that the the LCS implementations are working correctly.
 
 Run this code after making changes to the algorithms.
+
+IMPORTANT: this code assumes that all algorithms will returnt the same longest
+common subsequence. There may be more than one LCS. This assumption is safe
+for the code we have here, but may not be true for other cases.
 '''
 import lcs_brute_force
 import lcs_dynamic_programming
