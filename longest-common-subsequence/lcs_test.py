@@ -53,3 +53,5 @@ def test():
     _test_lcs(lcs_recursive.lcs)
     _test_lcs(lcs_dynamic_programming.lcs)
     _test_lcs(lcs_hirschberg.lcs)
+
+    print('All tests passed')
