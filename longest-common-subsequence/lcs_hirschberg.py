@@ -39,15 +39,19 @@ def lcs(xs, ys):
         # If it is in the other sequence, it's part of the LCS
         return [xs[0]] if xs[0] in ys else []
     else:
-        # More than one character - split xs into two halves
+        # Find the node to split the xs/ys matrix and split it into two
+        # This is the "q" node referred to in algorithms
+
+        # Split xs into two halves
         i = nx // 2
         xb, xe = xs[:i], xs[i:]
 
-        # Find the node to split the xs/ys matrix and split it into two
         # Cost for the top-left part (first half of xs + ys)
         ll_b = _lcs_lens(xb, ys)
         # Cost for the bottom-right part (inverted second half of xs, ys)
         ll_e = _lcs_lens(xe[::-1], ys[::-1])
+
+        # Choose the ys split based on cost (now we have "q")
         _, k = max((ll_b[j] + ll_e[ny - j], j)
                    for j in range(ny + 1))
         yb, ye = ys[:k], ys[k:]
