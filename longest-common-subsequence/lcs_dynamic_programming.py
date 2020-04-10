@@ -26,7 +26,7 @@ def _lcs_grid(xs, ys):
     to (j, i) was diagonal, downwards, or rightwards, or None.
 
     Example:
-    T  A  R  O  T
+      T  A  R  O  T
     A 0< 1\ 1< 1< 1<
     R 0< 1^ 2\ 2< 2<
     T 1\ 1< 2^ 2< 3\
