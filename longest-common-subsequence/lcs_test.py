@@ -1,10 +1,6 @@
 '''Verify that the the LCS implementations are working correctly.
 
 Run this code after making changes to the algorithms.
-
-IMPORTANT: this code assumes that all algorithms will returnt the same longest
-common subsequence. There may be more than one LCS. This assumption is safe
-for the code we have here, but may not be true for other cases.
 '''
 import lcs_brute_force
 import lcs_dynamic_programming
@@ -14,13 +10,19 @@ import lcs_recursive
 
 def _is_subsequence(seq, subseq):
     '''Checks if the given subsequence is indeed a subsequence of the
-    sequence.'''
+    sequence. '''
     j = 0
+    # Go through the subsequence elements in the order they are specified
     for i in range(len(subseq)):
-        while subseq[i] != seq[j] and j < len(seq):
+        # Look for the subsquence element in the sequence
+        while j < len(seq) and subseq[i] != seq[j]:
             j += 1
-    # To be a subsequence we must not to past the length of the sequence
-    return j < len(seq)
+        # If we couldm't find the element, it's not a subsequence
+        if j >= len(seq):
+            return False
+
+    # Successfully found all subseqeuece elements
+    return True
 
 
 def _test_subseqence_match():
@@ -34,8 +36,9 @@ def _test_subseqence_match():
     assert(_is_subsequence('ABC', ['B']))
     assert(_is_subsequence('ABC', ['B', 'C']))
     assert(_is_subsequence('ABC', ['A', 'B', 'C']))
-    assert(_is_subsequence('ABC', ['A', 'B', 'C']))
     assert(_is_subsequence('CHIMPANZEE', ['H', 'M', 'A', 'N']))
+    # Empty sequence is a subsequence
+    assert(_is_subsequence('CHIMPANZEE', []))
 
     # Negative test cases
     assert(_is_subsequence('AB', ['C']) is False)
