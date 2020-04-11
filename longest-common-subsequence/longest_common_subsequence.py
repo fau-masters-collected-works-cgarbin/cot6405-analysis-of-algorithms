@@ -24,15 +24,9 @@ import lcs_hirschberg
 import lcs_recursive
 import lcs_test
 
+# To ensure repeteability
+random.seed(42)
 
 # Make sure the algorithms work
 # lcs_test._test_subseqence_match()
 lcs_test.test()
-
-# To ensure repeteability
-random.seed(42)
-
-
-def random_dna_sequence(length):
-    '''Generates a random DNA sequence of the given length.'''
-    return ''.join(random.choice('ACTG') for _ in range(length))
