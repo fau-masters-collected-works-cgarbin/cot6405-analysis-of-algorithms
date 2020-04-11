@@ -1,6 +1,6 @@
 '''LCS with recursion.
 
-This is the simplest recursive solution, with no memoization. It is not an
+This is the simplest recursive solution, with memoization. It is not an
 efficient implementation. It is here to illustrate conceptually how to solve
 the problem.
 
@@ -11,19 +11,34 @@ According to it, this solution is based on the CLRS book.
 '''
 
 
+def memoize(fn):
+    '''Return a memoized version of the input function.
+
+    The returned function caches the results of previous calls.
+    Useful if a function call is expensive, and the function
+    is called repeatedly with the same arguments.
+    '''
+    cache = dict()
+
+    def wrapped(*v):
+        key = tuple(v)  # tuples are hashable, and can be used as dict keys
+        if key not in cache:
+            cache[key] = fn(*v)
+        return cache[key]
+    return wrapped
+
+
+@memoize
 def lcs(xs, ys):
-    '''Returns a longest common subsequence of xs and ys.'''
-    if xs and ys:
-        # Split into the prefix and the last character
-        *xb, xe = xs
-        *yb, ye = ys
-        if xe == ye:
-            # If the last character is the same, it's part of the LCS
-            # Add it to the LCS and continue with the prefix
-            return lcs(xb, yb) + [xe]
+    '''Returns the longest subsequence common to xs and ys.'''
+    @memoize
+    def lcs_(i, j):
+        if i and j:
+            xe, ye = xs[i-1], ys[j-1]
+            if xe == ye:
+                return lcs_(i-1, j-1) + [xe]
+            else:
+                return max(lcs_(i, j-1), lcs_(i-1, j), key=len)
         else:
-            # Last character is not the same, so not part of the LCS
-            # Continue with the largest prefix pair
-            return max(lcs(xs, yb), lcs(xb, ys), key=len)
-    else:
-        return []
+            return []
+    return lcs_(len(xs), len(ys))
