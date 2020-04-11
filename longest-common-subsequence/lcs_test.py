@@ -12,46 +12,82 @@ import lcs_hirschberg
 import lcs_recursive
 
 
-def _test_one_input(fn, xs, ys, expected):
+def _is_subsequence(seq, subseq):
+    '''Checks if the given subsequence is indeed a subsequence of the
+    sequence.'''
+    j = 0
+    for i in range(len(subseq)):
+        while subseq[i] != seq[j] and j < len(seq):
+            j += 1
+    # To be a subsequence we must not to past the length of the sequence
+    return j < len(seq)
+
+
+def _test_subseqence_match():
+    '''Tests if the subsequence check is working correctly.
+
+    This is crucial for the tests. Run this code after modifying the
+    subsequence checker code.'''
+    assert(_is_subsequence('AB', ['A']))
+    assert(_is_subsequence('AB', ['B']))
+    assert(_is_subsequence('ABC', ['A', 'B']))
+    assert(_is_subsequence('ABC', ['B']))
+    assert(_is_subsequence('ABC', ['B', 'C']))
+    assert(_is_subsequence('ABC', ['A', 'B', 'C']))
+    assert(_is_subsequence('ABC', ['A', 'B', 'C']))
+    assert(_is_subsequence('CHIMPANZEE', ['H', 'M', 'A', 'N']))
+
+    # Negative test cases
+    assert(_is_subsequence('AB', ['C']) is False)
+    assert(_is_subsequence('ABC', ['B', 'A']) is False)
+    assert(_is_subsequence('CHIMPANZEE', ['E', 'M', 'A', 'N']) is False)
+
+
+def _test_lcs(fn, xs, ys, expected=None):
     '''Test the LCS algorithm from `fn`.'''
-    result = fn(xs, ys)
-    if result != expected:
+    lcs = fn(xs, ys)
+    if expected is not None and lcs != expected:
         print('X: {}, Y: {} - expected {}, got {}'.format(
-            xs, ys, expected, result))
+            xs, ys, expected, lcs))
         assert(False)
+    else:
+        assert(_is_subsequence(xs, lcs))
+        assert(_is_subsequence(ys, lcs))
 
 
-def _test_lcs(fn):
+def _test_all(fn):
     '''Tests the LCS function `fn` with controlled input to check if the
     function is correct. '''
 
+    _test_lcs(fn, 'HUMAN', 'CHIMPANZEE')
+
     # No match case
-    _test_one_input(fn, 'ABC', 'XYZ', [])
+    _test_lcs(fn, 'ABC', 'XYZ', [])
 
     # All posible combinations of a short case
-    _test_one_input(fn, 'AB', 'A', ['A'])
-    _test_one_input(fn, 'AB', 'B', ['B'])
-    _test_one_input(fn, 'ABC', 'A', ['A'])
-    _test_one_input(fn, 'ABC', 'AB', ['A', 'B'])
-    _test_one_input(fn, 'ABC', 'B', ['B'])
-    _test_one_input(fn, 'ABC', 'BC', ['B', 'C'])
-    _test_one_input(fn, 'ABC', 'C', ['C'])
-    _test_one_input(fn, 'ABC', 'AC', ['A', 'C'])
-    _test_one_input(fn, 'ABC', 'ABC', ['A', 'B', 'C'])
+    _test_lcs(fn, 'AB', 'A', ['A'])
+    _test_lcs(fn, 'AB', 'B', ['B'])
+    _test_lcs(fn, 'ABC', 'A', ['A'])
+    _test_lcs(fn, 'ABC', 'AB', ['A', 'B'])
+    _test_lcs(fn, 'ABC', 'B', ['B'])
+    _test_lcs(fn, 'ABC', 'BC', ['B', 'C'])
+    _test_lcs(fn, 'ABC', 'C', ['C'])
+    _test_lcs(fn, 'ABC', 'AC', ['A', 'C'])
+    _test_lcs(fn, 'ABC', 'ABC', ['A', 'B', 'C'])
 
     # A bit longer case
-    _test_one_input(fn, 'ABC', 'ABCD', ['A', 'B', 'C'])
-    _test_one_input(fn, 'DABC', 'ABC', ['A', 'B', 'C'])
-    _test_one_input(fn, 'DABC', 'ABCD', ['A', 'B', 'C'])
+    _test_lcs(fn, 'ABC', 'ABCD', ['A', 'B', 'C'])
+    _test_lcs(fn, 'DABC', 'ABC', ['A', 'B', 'C'])
+    _test_lcs(fn, 'DABC', 'ABCD', ['A', 'B', 'C'])
 
     # And a larger one
-    _test_one_input(fn, 'HUMAN', 'CHIMPANZEE', ['H', 'M', 'A', 'N'])
+    _test_lcs(fn, 'HUMAN', 'CHIMPANZEE', ['H', 'M', 'A', 'N'])
 
 
 def test():
-    _test_lcs(lcs_brute_force.lcs)
-    _test_lcs(lcs_recursive.lcs)
-    _test_lcs(lcs_dynamic_programming.lcs)
-    _test_lcs(lcs_hirschberg.lcs)
+    _test_all(lcs_brute_force.lcs)
+    _test_all(lcs_recursive.lcs)
+    _test_all(lcs_dynamic_programming.lcs)
+    _test_all(lcs_hirschberg.lcs)
 
     print('All tests passed')
