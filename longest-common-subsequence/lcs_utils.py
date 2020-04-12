@@ -39,7 +39,6 @@ def print_subsequence(seq, subseq, prefix=''):
         else:
             lcs_aligned.append('.')
 
-    # Successfully found all subseqeuece elements
     print('{} {}'.format(prefix, seq))
     print('{} {}'.format(prefix, ''.join(lcs_aligned)))
 
