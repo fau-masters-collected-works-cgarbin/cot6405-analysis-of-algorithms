@@ -16,6 +16,8 @@ characters.
 Algorithm reference:
 https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf
 '''
+from numba import njit
+
 
 # To save memory and speed-up the code, the move is stored
 # in the upper bits of a cell and the length in the lower bits
@@ -27,6 +29,7 @@ EXCLUDE_LENGTH = (MOVE_DIAGONAL + MOVE_UP + MOVE_LEFT)
 EXCLUDE_MOVE = ~EXCLUDE_LENGTH
 
 
+@njit
 def _lcs_grid(xs, ys):
     '''Creates a grid for longest common subsequence calculations.
 
@@ -65,6 +68,7 @@ def _lcs_grid(xs, ys):
     return grid
 
 
+@njit
 def lcs(xs, ys):
     '''Returns a longest common subsequence of xs, ys.'''
     grid = _lcs_grid(xs, ys)
