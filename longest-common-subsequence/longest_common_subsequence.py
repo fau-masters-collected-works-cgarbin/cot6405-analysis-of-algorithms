@@ -24,7 +24,7 @@ import lcs_hirschberg
 import lcs_recursive
 import lcs_test
 
-# To ensure repeteability
+# To ensure repeatability
 random.seed(42)
 
 # Make sure the algorithms work
