@@ -1,5 +1,21 @@
-from collections import defaultdict, namedtuple
-from itertools import product
+'''LCS dynamic programming: solve smaller problems only once, combine the
+subproblems to build the solution.
+
+This is the bottom-up, non-recursive dynamic programming approach: first
+calculate the LCSes of all prefix pairs of xs and ys, from shortest to
+longest.
+
+This is done by filling out a grid with that has the information to "walk"
+through the pairs.
+
+Code based on http://wordaligned.org/articles/longest-common-subsequence,
+adapted to use a matrix and combine lenght and move into one integer to
+save memory. The original code is extremely slow for anything over 1,000
+characters.
+
+Algorithm reference:
+https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf
+'''
 
 # To save memory and speed-up the code, the move is stored
 # in the upper bits of a cell and the length in the lower bits
@@ -12,7 +28,7 @@ EXCLUDE_MOVE = ~EXCLUDE_LENGTH
 
 
 def _lcs_grid(xs, ys):
-    r'''Creates a grid for longest common subsequence calculations.
+    '''Creates a grid for longest common subsequence calculations.
 
     Returns a grid where grid[i][j] is a pair (n, move) such that
     - n is the length of the LCS of prefixes xs[:i], ys[:j]

@@ -4,7 +4,8 @@ This is the simplest recursive solution, with memoization. It is not an
 efficient implementation. It is here to illustrate conceptually how to solve
 the problem.
 
-Note that it returns one of the LCS, not all of them.
+Even with memoization, this solution hits the number of recursive calls in the
+Python environment for input strings around 10,000 characters.
 
 Based on http://wordaligned.org/articles/longest-common-subsequence.
 According to it, this solution is based on the CLRS book.
