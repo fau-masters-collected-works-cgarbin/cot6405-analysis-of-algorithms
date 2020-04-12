@@ -55,7 +55,7 @@ def lcs(xs, ys):
         # Cost for the bottom-right part (inverted second half of xs, ys)
         ll_e = _lcs_lens(xe[::-1], ys[::-1])
         # Invert the costs (of the inverted second half) to align it
-        # with the costs of the second half
+        # with the costs of the first half
         ll_e_r = ll_e[::-1]
 
         # Choose the ys split based on cost (now we have "q")

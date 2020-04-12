@@ -6,8 +6,9 @@ common subsequence.
 This is not the "extreme" brute force case, where all possible subsequences are
 generated ahead of time. It uses itertools, which does generate all
 combinations up front. It will yield one when asked. This saves memory.
-'''
 
+Optimization note: Numba is not used here because it slowed down the code.
+'''
 import itertools
 
 
