@@ -65,8 +65,6 @@ def random_dna_sequence(length):
     return ''.join(random.choice('ACTG') for _ in range(length))
 
 
-def main():
-    '''Subsequence matching code is crucial for this module to work.
-
-    Test it every time this module is imported.'''
-    _test_subseqence_match()
+# Subsequence matching code is crucial for this module to work
+# Test it every time this module is imported
+_test_subseqence_match()
