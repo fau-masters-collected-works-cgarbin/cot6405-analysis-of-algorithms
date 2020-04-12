@@ -4,7 +4,6 @@ from itertools import product
 # To save memory and speed-up the code, the move is stored
 # in the upper bits of a cell and the length in the lower bits
 MOVE_START = 25  # leaves 24 bits for the length
-MOVE_NONE = 0
 MOVE_DIAGONAL = 1 << (MOVE_START)
 MOVE_UP = 1 << (MOVE_START+1)
 MOVE_LEFT = 1 << (MOVE_START+2)
