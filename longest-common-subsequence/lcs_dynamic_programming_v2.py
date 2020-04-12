@@ -9,7 +9,7 @@ This is done by filling out a grid with that has the information to "walk"
 through the pairs.
 
 Code based on http://wordaligned.org/articles/longest-common-subsequence,
-adapted to use a matrix and combine lenght and move into one integer to
+adapted to use a matrix and combine length and move into one integer to
 save memory. The original code is extremely slow for anything over 1,000
 characters.
 

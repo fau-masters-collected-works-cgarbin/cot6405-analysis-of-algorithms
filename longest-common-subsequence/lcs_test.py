@@ -5,9 +5,19 @@ Run this code after making changes to the algorithms.
 import lcs_brute_force
 import lcs_dynamic_programming
 import lcs_dynamic_programming_v2
+import lcs_dynamic_programming_numpy
 import lcs_hirschberg
 import lcs_recursive
 import lcs_utils
+
+algorithms = [
+    lcs_brute_force.lcs,
+    lcs_recursive.lcs,
+    lcs_dynamic_programming.lcs,
+    lcs_dynamic_programming_v2.lcs,
+    lcs_dynamic_programming_numpy.lcs,
+    lcs_hirschberg.lcs,
+]
 
 
 def _test_lcs(alg, xs, ys, expected=None):
@@ -56,11 +66,8 @@ def _test_basic_cases():
 
     Run these tests first. If they fail, they are easier to debug.
     '''
-    _test_lcs_algorithm(lcs_brute_force.lcs)
-    _test_lcs_algorithm(lcs_recursive.lcs)
-    _test_lcs_algorithm(lcs_dynamic_programming.lcs)
-    _test_lcs_algorithm(lcs_dynamic_programming_v2.lcs)
-    _test_lcs_algorithm(lcs_hirschberg.lcs)
+    for alg in algorithms:
+        _test_lcs_algorithm(alg)
 
     print('All basic tests passed')
 
@@ -75,28 +82,18 @@ def _test_dna_strand():
     dna = lcs_utils.random_dna_sequence(1_000)
     dna_strand = lcs_utils.random_dna_sequence(100)
 
-    lcs_bf = lcs_brute_force.lcs(dna, dna_strand)
-    assert(lcs_utils.is_subsequence(dna, lcs_bf))
+    # Calculate the LCSs
+    lcs = [alg(dna, dna_strand) for alg in algorithms]
 
-    lcs_r = lcs_recursive.lcs(dna, dna_strand)
-    assert(lcs_utils.is_subsequence(dna, lcs_r))
-
-    lcs_dp = lcs_dynamic_programming.lcs(dna, dna_strand)
-    assert(lcs_utils.is_subsequence(dna, lcs_dp))
-
-    lcs_dpv2 = lcs_dynamic_programming_v2.lcs(dna, dna_strand)
-    assert(lcs_utils.is_subsequence(dna, lcs_dpv2))
-
-    lcs_h = lcs_hirschberg.lcs(dna, dna_strand)
-    assert(lcs_utils.is_subsequence(dna, lcs_h))
+    # Check if they are indeed LCSs
+    for seq in lcs:
+        assert(lcs_utils.is_subsequence(dna, seq))
 
     # Besides finding the correct subsequence, all algorithms must find a
     # subsqequence of the same length to ensure they are indeed finding an LCS,
     # not just any common subsequence
-    assert(len(lcs_bf) == len(lcs_r))
-    assert(len(lcs_bf) == len(lcs_dp))
-    assert(len(lcs_bf) == len(lcs_dpv2))
-    assert(len(lcs_bf) == len(lcs_h))
+    seqlen = [len(seq) for seq in lcs]
+    assert(all(x == seqlen[0] for x in seqlen))
 
     print('All DNA tests passed')
 
