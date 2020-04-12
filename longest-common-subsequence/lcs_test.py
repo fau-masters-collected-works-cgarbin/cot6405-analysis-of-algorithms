@@ -101,6 +101,28 @@ def _test_dna_strand():
     print('All DNA tests passed')
 
 
-def test():
+def test(visualize=False):
+    '''Tests if the algorithms are working correctly.
+
+    Two tests are executed:
+
+    1. A test with short sequences, to help debug basic failures.
+    2. A test with large sequence, to account for possible corner cases
+       with large sequences.
+
+    Keyword Arguments:
+        visualize {bool} -- set to True to see examples of subsequences found
+            found by the algorithms. This is an extra check, to visualize
+            inspect the results, in case the test code itself is under
+            suspicion.
+    '''
     _test_basic_cases()
     _test_dna_strand()
+
+    if visualize:
+        print('Visual inspection:')
+        dna = lcs_utils.random_dna_sequence(30)
+        dna_strand = lcs_utils.random_dna_sequence(20)
+        for alg in [lcs_brute_force, lcs_dynamic_programming, lcs_hirschberg]:
+            lcs = alg.lcs(dna, dna_strand)
+            lcs_utils.print_subsequence(dna, lcs, '  ')
