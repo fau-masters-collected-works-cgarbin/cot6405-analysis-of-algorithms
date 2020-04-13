@@ -5,7 +5,9 @@ import random
 import lcs_brute_force
 import lcs_dynamic_programming
 import lcs_dynamic_programming_v2
+import lcs_dynamic_programming_numpy
 import lcs_hirschberg
+import lcs_hirschberg_numpy
 import lcs_recursive
 import lcs_test
 import lcs_utils
@@ -15,22 +17,33 @@ import time
 random.seed(42)
 
 # IMPORTANT: make sure the algorithms work before using them
-lcs_test.test()
-
-dna = lcs_utils.random_dna_sequence(1_000)
-dna_strand = lcs_utils.random_dna_sequence(100)
+lcs_test.test(visualize=True)
 
 Algorithm = namedtuple('Algorithm', ['function', 'description'])
+# algorithms = [
+#     Algorithm(lcs_brute_force.lcs, 'Brute force'),
+#     Algorithm(lcs_dynamic_programming_v2.lcs, 'Dynamic programming'),
+#     Algorithm(lcs_hirschberg.lcs, 'Hirschberg'),
+# ]
 algorithms = [
-    Algorithm(lcs_brute_force.lcs, 'Brute force'),
+    Algorithm(lcs_hirschberg.lcs, 'Hirschber'),
+    Algorithm(lcs_hirschberg_numpy.lcs, 'Hirschber NumPy'),
     Algorithm(lcs_dynamic_programming_v2.lcs, 'Dynamic programming'),
-    Algorithm(lcs_hirschberg.lcs, 'Hirschberg'),
+    Algorithm(lcs_dynamic_programming_numpy.lcs, 'Dynamic programming NumPy'),
 ]
 
-for alg in algorithms:
-    start = time.process_time()
+#tests = [(10_000, 1_000), (100_000, 10_000)]
+tests = [(10_000, 1_000)]
 
-    alg.function(dna, dna_strand)
-    total_time = time.process_time() - start
+for dna_size, dna_strand_size in tests:
+    dna = lcs_utils.random_dna_sequence(dna_size)
+    dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
 
-    print('{:>20}: {:.3f}'.format(alg.description, total_time))
+    print('\nTimes for {:,}, {:,}'.format(len(dna), len(dna_strand)))
+    for alg in algorithms:
+        start = time.process_time()
+
+        alg.function(dna, dna_strand)
+        total_time = time.process_time() - start
+
+        print('{:>30}: {:.3f}'.format(alg.description, total_time))
