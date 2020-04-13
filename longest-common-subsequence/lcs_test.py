@@ -7,6 +7,7 @@ import lcs_dynamic_programming
 import lcs_dynamic_programming_v2
 import lcs_dynamic_programming_numpy
 import lcs_hirschberg
+import lcs_hirschberg_numpy
 import lcs_recursive
 import lcs_utils
 
@@ -17,6 +18,7 @@ algorithms = [
     lcs_dynamic_programming_v2.lcs,
     lcs_dynamic_programming_numpy.lcs,
     lcs_hirschberg.lcs,
+    lcs_hirschberg_numpy.lcs,
 ]
 
 
@@ -24,8 +26,8 @@ def _test_lcs(alg, xs, ys, expected=None):
     '''Tests the LCS algorithm against the given input.'''
     lcs = alg(xs, ys)
     if expected is not None and lcs != expected:
-        print('X: {}, Y: {} - expected {}, got {}'.format(
-            xs, ys, expected, lcs))
+        print('{}: X={}, Y={} - expected {}, got {}'.format(
+            alg.__module__, xs, ys, expected, lcs))
         assert(False)
     else:
         assert(lcs_utils.is_subsequence(xs, lcs))
@@ -120,6 +122,7 @@ def test(visualize=False):
         print('Visual inspection:')
         dna = lcs_utils.random_dna_sequence(30)
         dna_strand = lcs_utils.random_dna_sequence(20)
-        for alg in [lcs_brute_force, lcs_dynamic_programming, lcs_hirschberg]:
-            lcs = alg.lcs(dna, dna_strand)
-            lcs_utils.print_subsequence(dna, lcs, '  ')
+        for alg in algorithms:
+            lcs = alg(dna, dna_strand)
+            lcs_utils.print_subsequence(dna, lcs, '{:>30}: '.format(
+                alg.__module__))
