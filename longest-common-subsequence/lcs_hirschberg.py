@@ -62,6 +62,7 @@ def lcs(xs, ys):
         # Find the max is done with a loop to allow numba optimization
         cost = [x + y for x, y in zip(ll_b, ll_e_r)]
         max_so_far = 0
+        k = 0
         for i, x in enumerate(cost):
             if x > max_so_far:
                 max_so_far = x
