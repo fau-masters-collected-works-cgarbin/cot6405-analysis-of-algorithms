@@ -69,13 +69,8 @@ def lcs(xs, ys):
 
         # Choose the ys split based on cost (now we have "q")
         # Find the max is done with a loop to allow numba optimization
-        cost = [x + y for x, y in zip(ll_b, ll_e_r)]
-        max_so_far = 0
-        k = 0
-        for i, x in enumerate(cost):
-            if x > max_so_far:
-                max_so_far = x
-                k = i
+        cost = ll_b + ll_e_r
+        k = np.argmax(cost)
 
         yb, ye = ys[:k], ys[k:]
 
