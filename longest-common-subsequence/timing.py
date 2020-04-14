@@ -26,8 +26,8 @@ Algorithm = namedtuple('Algorithm', ['function', 'description'])
 #     Algorithm(lcs_hirschberg.lcs, 'Hirschberg'),
 # ]
 algorithms = [
-    Algorithm(lcs_hirschberg.lcs, 'Hirschber'),
-    Algorithm(lcs_hirschberg_numpy.lcs, 'Hirschber NumPy'),
+    Algorithm(lcs_hirschberg.lcs, 'Hirschberg'),
+    Algorithm(lcs_hirschberg_numpy.lcs, 'Hirschberg NumPy'),
     Algorithm(lcs_dynamic_programming_v2.lcs, 'Dynamic programming'),
     Algorithm(lcs_dynamic_programming_numpy.lcs, 'Dynamic programming NumPy'),
 ]
