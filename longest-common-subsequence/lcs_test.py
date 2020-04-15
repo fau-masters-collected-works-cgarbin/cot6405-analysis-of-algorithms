@@ -13,7 +13,6 @@ import lcs_utils
 
 algorithms = [
     lcs_brute_force.lcs,
-    lcs_recursive.lcs,
     lcs_dynamic_programming.lcs,
     lcs_dynamic_programming_v2.lcs,
     lcs_dynamic_programming_numpy.lcs,

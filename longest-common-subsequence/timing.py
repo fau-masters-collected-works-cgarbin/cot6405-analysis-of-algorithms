@@ -30,13 +30,14 @@ algorithms = [
     Algorithm(lcs_brute_force.lcs, 'Brute force'),
     Algorithm(lcs_hirschberg.lcs, 'Hirschberg'),
     Algorithm(lcs_hirschberg_numpy.lcs, 'Hirschberg NumPy'),
+    Algorithm(lcs_dynamic_programming.lcs, 'Dynamic programming original'),
     Algorithm(lcs_dynamic_programming_v2.lcs, 'Dynamic programming'),
     Algorithm(lcs_dynamic_programming_numpy.lcs, 'Dynamic programming NumPy'),
 ]
 
 #tests = [(10_000, 1_000), (100_000, 10_000)]
-tests = [(10_000, 1_000), (100_000, 1_000)]
-#tests = [(10_000, 1_000)]
+# tests = [(10_000, 1_000), (100_000, 1_000)]
+tests = [(10_000, 1_000)]
 
 for dna_size, dna_strand_size in tests:
     dna = lcs_utils.random_dna_sequence(dna_size)

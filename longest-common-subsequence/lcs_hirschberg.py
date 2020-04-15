@@ -23,7 +23,7 @@ def _lcs_lens(xs, ys):
         prev = list(curr)
         for i, y in enumerate(ys):
             if x == y:
-                curr[i + 1] = prev[i] + 1
+                curr[i] = prev[i] + 1
             else:
                 curr[i + 1] = max(curr[i], prev[i + 1])
     return curr

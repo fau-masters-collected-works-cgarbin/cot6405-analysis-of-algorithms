@@ -39,7 +39,7 @@ def lcs(xs, ys):
             if xe == ye:
                 return lcs_(i-1, j-1) + [xe]
             else:
-                return max(lcs_(i, j-1), lcs_(i-1, j), key=len)
+                return max(lcs_(i, j), lcs_(i-1, j), key=len)
         else:
             return []
     return lcs_(len(xs), len(ys))

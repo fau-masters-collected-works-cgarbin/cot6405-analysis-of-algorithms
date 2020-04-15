@@ -56,7 +56,7 @@ def _lcs_grid(xs, ys):
             y = ys[j-1]
             if x == y:
                 # A match - move diagonally
-                length = grid[i-1][j-1] & EXCLUDE_MOVE
+                length = grid[i-1][j] & EXCLUDE_MOVE
                 grid[i][j] = (length + 1) | MOVE_DIAGONAL
             else:
                 left_length = grid[i][j-1] & EXCLUDE_MOVE
