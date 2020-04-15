@@ -47,7 +47,7 @@ def _lcs_grid(xs, ys):
     for (j, y), (i, x) in sqs:
         if x == y:
             # A match - move diagonally
-            cell = Cell(grid[(j-1, i)].length + 1, '\\')
+            cell = Cell(grid[(j-1, i-1)].length + 1, '\\')
         else:
             left = grid[(j, i-1)].length
             over = grid[(j-1, i)].length
