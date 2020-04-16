@@ -124,5 +124,5 @@ def test(visualize=False):
         dna_strand = lcs_utils.random_dna_sequence(20)
         for alg in algorithms:
             lcs = alg(dna, dna_strand)
-            lcs_utils.print_subsequence(dna, lcs, '{:>30}: '.format(
-                alg.__module__))
+            lcs_utils.print_subsequence(
+                dna, lcs, prefix='{:>30}: '.format(alg.__module__))

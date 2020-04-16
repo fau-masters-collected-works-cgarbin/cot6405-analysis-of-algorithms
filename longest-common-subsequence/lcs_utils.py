@@ -40,7 +40,8 @@ def print_subsequence(seq, subseq, prefix=''):
             lcs_aligned.append('.')
 
     print('{} {}'.format(prefix, seq))
-    print('{} {}'.format(prefix, ''.join(lcs_aligned)))
+    print('{} {} size={}'.format(
+        prefix, ''.join(lcs_aligned), len(subseq)))
 
 
 def is_subsequence(seq, subseq):
