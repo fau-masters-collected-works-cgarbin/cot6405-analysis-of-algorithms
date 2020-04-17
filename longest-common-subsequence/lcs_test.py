@@ -3,9 +3,9 @@
 Run this code after making changes to the algorithms.
 '''
 import lcs_brute_force
-import lcs_dynamic_programming
-import lcs_dynamic_programming_v2
-import lcs_dynamic_programming_numpy
+import lcs_dynamic_programming_dict
+import lcs_dynamic_programming_matrix_python
+import lcs_dynamic_programming_matrix_numpy
 import lcs_hirschberg
 import lcs_hirschberg_numpy
 import lcs_recursive
@@ -14,9 +14,9 @@ import lcs_utils
 algorithms = [
     lcs_brute_force.lcs,
     lcs_recursive.lcs,
-    lcs_dynamic_programming.lcs,
-    lcs_dynamic_programming_v2.lcs,
-    lcs_dynamic_programming_numpy.lcs,
+    lcs_dynamic_programming_dict.lcs,
+    lcs_dynamic_programming_matrix_python.lcs,
+    lcs_dynamic_programming_matrix_numpy.lcs,
     lcs_hirschberg.lcs,
     lcs_hirschberg_numpy.lcs,
 ]

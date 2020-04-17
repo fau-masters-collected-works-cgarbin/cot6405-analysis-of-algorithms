@@ -10,6 +10,10 @@ through the pairs.
 
 Code based on http://wordaligned.org/articles/longest-common-subsequence.
 
+This is the original code, which uses a namedtuple for each cell and a
+a dictionary for the grid. It makes for clean code, but is slow (creating
+namedtuples) and memory intensive (the namedtuples are large objects).
+
 Algorithm reference:
 https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf
 '''

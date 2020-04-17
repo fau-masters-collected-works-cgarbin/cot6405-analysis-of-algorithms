@@ -8,14 +8,22 @@ longest.
 This is done by filling out a grid with that has the information to "walk"
 through the pairs.
 
-Code based on http://wordaligned.org/articles/longest-common-subsequence,
-adapted to use a matrix and combine length and move into one integer to
-save memory. The original code is extremely slow for anything over 1,000
-characters.
+Code based on http://wordaligned.org/articles/longest-common-subsequence.
+
+This version also uses a matrix, but this time a NumPy matrix to save even more
+memory. It also takes advantage of NumPy vectorized operations in a few
+places to work faster with Numba (which seems to be good at optimizing NumPy
+code).
+
+IMPORTANT: this version is faster only whne used wiht Numba. Without Numba it
+is much slower than the version that uses Python arrays. This is caused by
+the conversion of NumPy internal representation to Python objects while
+performing loops. Numba seems to avoid it.
 
 Algorithm reference:
 https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf
 '''
+import numpy as np
 from numba import njit
 
 
@@ -48,9 +56,9 @@ def _lcs_grid(xs, ys):
     # Note that we start with 1, not the traditional 0 because the first
     # column and first row are used as sentinels to avoid special cases
     # in the code (sentinel = length is zero, no move)
-    grid = [[0 for _ in range(len(ys)+1)] for _ in range(len(xs)+1)]
+    grid = np.zeros(shape=(len(xs)+1, len(ys)+1), dtype=np.int32)
 
-    for i in range(1, len(xs)+1):
+    for i in range(1, len(xs) + 1):
         x = xs[i-1]  # Remember that we use index 0 as a sentinel
         for j in range(1, len(ys)+1):
             y = ys[j-1]
