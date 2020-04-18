@@ -14,6 +14,9 @@ This is the original code, which uses a namedtuple for each cell and a
 a dictionary for the grid. It makes for clean code, but is slow (creating
 namedtuples) and memory intensive (the namedtuples are large objects).
 
+Note about using Numba: this code is not "Numba friendly". It generates an
+error when Numba tries to compile it.
+
 Algorithm reference:
 https://www.cs.princeton.edu/~wayne/kleinberg-tardos/pdf/06DynamicProgrammingII.pdf
 '''

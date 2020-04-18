@@ -7,7 +7,7 @@ Code based on http://wordaligned.org/articles/longest-common-subsequence.
 
 This version also uses NumPy for the arrays to save even more memory.
 
-IMPORTANT: this version is faster only whne used wiht Numba. Without Numba it
+IMPORTANT: this version is faster only when used with Numba. Without Numba it
 is much slower than the version that uses Python arrays. This is caused by
 the conversion of NumPy internal representation to Python objects while
 performing loops. Numba seems to avoid it.
