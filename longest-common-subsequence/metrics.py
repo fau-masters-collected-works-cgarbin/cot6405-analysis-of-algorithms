@@ -27,11 +27,23 @@ algorithms = [
 ]
 
 # The tests to execute
-tests = [(1_000, 100), (10_000, 1_000),  (100_000, 1_000)]
+tests = [(1_000, 100), (10_000, 1_000),  (100_000, 10_000)]
 
 
 def runtime(repeat=2, verbose=True):
-    '''Measures algorithms' runtime.'''
+    '''Measures algorithms' runtime.
+
+    Keyword Arguments:
+        repeat {int} -- How many time to measure each algorithm.
+        verbose {bool} -- Set to False to suppress messsages while measuring.
+            the algorithms.
+
+    Returns:
+        list -- A list of measurements. Each entry is an array with:
+            - The algorithm description
+            - The repetition number (to identify each run)
+            - The time to complete the run in milliseconds
+    '''
     for dna_size, dna_strand_size in tests:
         # Create the test strings only once to correcly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
@@ -41,11 +53,13 @@ def runtime(repeat=2, verbose=True):
             print('\nTimes for DNA {:,}, DNA strand {:,}'.format(
                 len(dna), len(dna_strand)))
 
+        results = []
         for alg in algorithms:
-            for _ in range(repeat):
+            for i in range(repeat):
                 start = time.process_time()
                 lcs = alg.function(dna, dna_strand)
                 total_time = time.process_time() - start
+                results.append([alg.description, i+1, total_time])
 
                 if verbose:
                     print('  {:>30}: {:.3f}'.format(
@@ -54,24 +68,41 @@ def runtime(repeat=2, verbose=True):
                 # Make that the algorithm is working correctly
                 assert(lcs_utils.is_subsequence(dna, lcs))
 
+        return results
+
 
 def memory(repeat=2, verbose=True):
     '''Measures algorithms' memory usage.
 
-    Memory usage has to be done separately from runtime meaurement because
+    Memory usage has to be done separately from runtime measurement because
     tracking memory usage affects runtime. It is more notieable in the cases
     where the algorithm finishes quickly, e.g. fast algorithms or small input.
-    '''
-    # Run all algorithms once to load all we need in teh Python environemtn.
-    # creating a baseline for memory usage
-    for dna_size, dna_strand_size in tests:
-        dna = lcs_utils.random_dna_sequence(dna_size)
-        dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
-        for alg in algorithms:
-            print('Warming up - {} {},{}'.format(alg.description,
-                                                 dna_size, dna_strand_size))
-            alg.function(dna, dna_strand)
 
+    Having said that, measuring memory usage has been tricky. It varies from
+    one run to the next. To help stabilize the numbers, there techniques were
+    used in this code:
+
+    1. Call gc.collect() to not measure any left over from previous runs.
+    2. Call an empty function to get a memory usage basline.
+
+    Also, call this function right after calling the time measurement function.
+    This allows the environment to reach a stable memory usage state (e.g. load
+    all modules it needs), so a better baseline can be measured.
+
+    Keyword Arguments:
+        repeat {int} -- How many time to measure each algorithm.
+        verbose {bool} -- Set to False to suppress messsages while measuring.
+            the algorithms.
+
+    Returns:
+        list -- A list of measurements. Each entry is an array with:
+            - The algorithm description
+            - The repetition number (to identify each run)
+            - The ammount of memory used in KiB.
+            - The time to execute to the algorith, but note that measuring
+              memory usage affects runtime, especially for the faster
+              case (fast algorithms and/or small input size).
+    '''
     for dna_size, dna_strand_size in tests:
         # Create the test strings only once to correcly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
@@ -81,8 +112,9 @@ def memory(repeat=2, verbose=True):
             print('\nMemory and time for DNA {:,}, DNA strand {:,}'.format(
                 len(dna), len(dna_strand)))
 
+        results = []
         for alg in algorithms:
-            for _ in range(repeat):
+            for i in range(repeat):
                 # Run garbage collection so we don't measure memory left over
                 # from other algorithm runs
                 gc.collect()
@@ -95,17 +127,21 @@ def memory(repeat=2, verbose=True):
                 mem_usage = memory_usage((alg.function, (dna, dna_strand)),
                                          interval=0.01)
                 total_time = time.process_time() - start
+                results.append(
+                    [alg.description, i + 1, max(mem_usage) - mem_baseline,
+                     total_time])
 
                 if verbose:
                     print('  {:>30}: {:.6f} {:.6f} {:.3f} {}'.format(
                         alg.description, max(mem_usage), mem_baseline,
                         total_time, mem_usage[:5]))
 
-
-# Use this to measure the current memory consumption
-for _ in range(5):
-    mem_usage = memory_usage((lcs_empty.lcs), interval=0.01)
-    print(mem_usage)
+        return results
 
 
-memory()
+# Tests the algortihsm before using them
+# Also warms up the memory measurements
+lcs_test.test(visualize=True)
+
+print(runtime())
+print(memory())
