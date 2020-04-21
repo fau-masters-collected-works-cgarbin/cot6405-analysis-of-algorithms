@@ -27,14 +27,15 @@ algorithms = [
 ]
 
 # The tests to execute
-tests = [(1_000, 100), (10_000, 1_000),  (100_000, 10_000)]
+#tests = [(1_000, 100), (10_000, 1_000), (100_000, 10_000)]
+tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
 
 
 def runtime(repeat=2, verbose=True):
     '''Measures algorithms' runtime.
 
     Keyword Arguments:
-        repeat {int} -- How many time to measure each algorithm.
+        repeat {int} -- How many times to measure each algorithm.
         verbose {bool} -- Set to False to suppress messsages while measuring.
             the algorithms.
 
@@ -90,7 +91,7 @@ def memory(repeat=2, verbose=True):
     all modules it needs), so a better baseline can be measured.
 
     Keyword Arguments:
-        repeat {int} -- How many time to measure each algorithm.
+        repeat {int} -- How many times to measure each algorithm.
         verbose {bool} -- Set to False to suppress messsages while measuring.
             the algorithms.
 
@@ -99,7 +100,7 @@ def memory(repeat=2, verbose=True):
             - The algorithm description
             - The repetition number (to identify each run)
             - The ammount of memory used in KiB.
-            - The time to execute to the algorith, but note that measuring
+            - The time to execute to the algorithm, but note that measuring
               memory usage affects runtime, especially for the faster
               case (fast algorithms and/or small input size).
     '''
@@ -121,7 +122,8 @@ def memory(repeat=2, verbose=True):
 
                 # Get the current memory usage of the Python environment
                 mem_baseline = min([min(memory_usage(
-                    (lcs_empty.lcs), interval=0.01)) for _ in range(3)])
+                    (lcs_empty.lcs, (dna, dna_strand)), interval=0.01))
+                    for _ in range(3)])
 
                 start = time.process_time()
                 mem_usage = memory_usage((alg.function, (dna, dna_strand)),
@@ -143,5 +145,8 @@ def memory(repeat=2, verbose=True):
 # Also warms up the memory measurements
 lcs_test.test(visualize=True)
 
-print(runtime())
-print(memory())
+for x in runtime():
+    print(x)
+print('---------------')
+for x in memory(repeat=2):
+    print(x)
