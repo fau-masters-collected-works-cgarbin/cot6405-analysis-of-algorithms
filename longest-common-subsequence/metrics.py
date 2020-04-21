@@ -68,7 +68,7 @@ def runtime(repeat=2, verbose=True):
                 # Make that the algorithm is working correctly
                 assert(lcs_utils.is_subsequence(dna, lcs))
 
-        return results
+    return results
 
 
 def memory(repeat=2, verbose=True):
@@ -136,7 +136,7 @@ def memory(repeat=2, verbose=True):
                         alg.description, max(mem_usage), mem_baseline,
                         total_time, mem_usage[:5]))
 
-        return results
+    return results
 
 
 # Tests the algortihsm before using them
