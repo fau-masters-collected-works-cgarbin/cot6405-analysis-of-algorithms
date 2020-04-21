@@ -125,4 +125,4 @@ def test(visualize=False):
         for alg in algorithms:
             lcs = alg(dna, dna_strand)
             lcs_utils.print_subsequence(
-                dna, lcs, prefix='{:>30}: '.format(alg.__module__))
+                dna, lcs, prefix='{:>40}: '.format(alg.__module__))
