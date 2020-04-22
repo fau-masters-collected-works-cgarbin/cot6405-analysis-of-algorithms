@@ -32,13 +32,13 @@ algorithms = [
 tests = [(1_000, 100), (10_000, 1_000)]
 
 
-def runtime(repeat=2, verbose=True):
+def runtime(repeat=2, verbose=1):
     '''Measures algorithms' runtime.
 
     Keyword Arguments:
         repeat {int} -- How many times to measure each algorithm.
-        verbose {bool} -- Set to False to suppress messsages while measuring.
-            the algorithms.
+        verbose {int} -- Set to > 0 for different levels of outputs while
+            testing.
 
     Returns:
         list -- A list of measurements. Each entry is an array with:
@@ -48,17 +48,19 @@ def runtime(repeat=2, verbose=True):
             - The repetition number (to identify each run)
             - The time to complete the run in milliseconds
     '''
+    results = []
     for dna_size, dna_strand_size in tests:
         # Create the test strings only once to correcly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
         dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
 
-        if verbose:
+        if verbose >= 1:
             print('\nTimes for DNA {:,}, DNA strand {:,}'.format(
                 len(dna), len(dna_strand)))
 
-        results = []
         for alg in algorithms:
+            if verbose == 1:
+                print('\n{}: '.format(alg.description), end='', flush=True)
             for i in range(repeat):
                 start = time.process_time()
                 lcs = alg.function(dna, dna_strand)
@@ -66,17 +68,19 @@ def runtime(repeat=2, verbose=True):
                 results.append([alg.description, dna_size, dna_strand_size,
                                 i+1, total_time])
 
-                if verbose:
+                if verbose >= 2:
                     print('  {:>30}: {:.3f}'.format(
                         alg.description, total_time))
+                elif verbose >= 1:
+                    print('{}/{},'.format(i+1, repeat), end='', flush=True)
 
-                # Make that the algorithm is working correctly
+                    # Make that the algorithm is working correctly
                 assert(lcs_utils.is_subsequence(dna, lcs))
 
     return results
 
 
-def memory(repeat=2, verbose=True):
+def memory(repeat=2, verbose=1):
     '''Measures algorithms' memory usage.
 
     Memory usage has to be done separately from runtime measurement because
@@ -96,8 +100,8 @@ def memory(repeat=2, verbose=True):
 
     Keyword Arguments:
         repeat {int} -- How many times to measure each algorithm.
-        verbose {bool} -- Set to False to suppress messsages while measuring.
-            the algorithms.
+        verbose {int} -- Set to > 0 for different levels of outputs while
+            testing.
 
     Returns:
         list -- A list of measurements. Each entry is an array with:
@@ -105,11 +109,12 @@ def memory(repeat=2, verbose=True):
             - The size of the first sequence used in the test
             - The size of the second sequence used in the test
             - The repetition number (to identify each run)
-            - The ammount of memory used in KiB.
+            - The amount of memory used in KiB.
             - The time to execute to the algorithm, but note that measuring
               memory usage affects runtime, especially for the faster
               case (fast algorithms and/or small input size).
     '''
+    results = []
     for dna_size, dna_strand_size in tests:
         # Create the test strings only once to correcly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
@@ -119,7 +124,6 @@ def memory(repeat=2, verbose=True):
             print('\nMemory and time for DNA {:,}, DNA strand {:,}'.format(
                 len(dna), len(dna_strand)))
 
-        results = []
         for alg in algorithms:
             for i in range(repeat):
                 # Run garbage collection so we don't measure memory left over
@@ -145,14 +149,3 @@ def memory(repeat=2, verbose=True):
                         total_time, mem_usage[:5]))
 
     return results
-
-
-# Tests the algortihsm before using them
-# Also warms up the memory measurements
-lcs_test.test(visualize=True)
-
-for x in runtime():
-    print(x)
-print('---------------')
-for x in memory(repeat=2):
-    print(x)
