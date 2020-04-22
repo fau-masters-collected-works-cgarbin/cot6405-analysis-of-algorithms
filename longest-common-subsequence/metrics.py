@@ -28,7 +28,8 @@ algorithms = [
 
 # The tests to execute
 #tests = [(1_000, 100), (10_000, 1_000), (100_000, 10_000)]
-tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
+# tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
+tests = [(1_000, 100), (10_000, 1_000)]
 
 
 def runtime(repeat=2, verbose=True):
@@ -42,6 +43,8 @@ def runtime(repeat=2, verbose=True):
     Returns:
         list -- A list of measurements. Each entry is an array with:
             - The algorithm description
+            - The size of the first sequence used in the test
+            - The size of the second sequence used in the test
             - The repetition number (to identify each run)
             - The time to complete the run in milliseconds
     '''
@@ -60,7 +63,8 @@ def runtime(repeat=2, verbose=True):
                 start = time.process_time()
                 lcs = alg.function(dna, dna_strand)
                 total_time = time.process_time() - start
-                results.append([alg.description, i+1, total_time])
+                results.append([alg.description, dna_size, dna_strand_size,
+                                i+1, total_time])
 
                 if verbose:
                     print('  {:>30}: {:.3f}'.format(
@@ -98,6 +102,8 @@ def memory(repeat=2, verbose=True):
     Returns:
         list -- A list of measurements. Each entry is an array with:
             - The algorithm description
+            - The size of the first sequence used in the test
+            - The size of the second sequence used in the test
             - The repetition number (to identify each run)
             - The ammount of memory used in KiB.
             - The time to execute to the algorithm, but note that measuring
@@ -129,9 +135,9 @@ def memory(repeat=2, verbose=True):
                 mem_usage = memory_usage((alg.function, (dna, dna_strand)),
                                          interval=0.01)
                 total_time = time.process_time() - start
-                results.append(
-                    [alg.description, i + 1, max(mem_usage) - mem_baseline,
-                     total_time])
+                results.append([alg.description, dna_size, dna_strand_size,
+                                i + 1, max(mem_usage) - mem_baseline,
+                                total_time])
 
                 if verbose:
                     print('  {:>30}: {:.6f} {:.6f} {:.3f} {}'.format(
