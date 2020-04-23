@@ -120,11 +120,13 @@ def memory(repeat=2, verbose=1):
         dna = lcs_utils.random_dna_sequence(dna_size)
         dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
 
-        if verbose:
+        if verbose >= 1:
             print('\nMemory and time for DNA {:,}, DNA strand {:,}'.format(
                 len(dna), len(dna_strand)))
 
         for alg in algorithms:
+            if verbose == 1:
+                print('\n{}: '.format(alg.description), end='', flush=True)
             for i in range(repeat):
                 # Run garbage collection so we don't measure memory left over
                 # from other algorithm runs
@@ -143,9 +145,11 @@ def memory(repeat=2, verbose=1):
                                 i + 1, max(mem_usage) - mem_baseline,
                                 total_time])
 
-                if verbose:
+                if verbose >= 2:
                     print('  {:>30}: {:.6f} {:.6f} {:.3f} {}'.format(
                         alg.description, max(mem_usage), mem_baseline,
                         total_time, mem_usage[:5]))
+                elif verbose >= 1:
+                    print('{}/{},'.format(i+1, repeat), end='', flush=True)
 
     return results
