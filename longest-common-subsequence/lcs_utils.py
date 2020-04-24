@@ -24,11 +24,12 @@ def _test_subseqence_match():
         'CHIMPANZEE', ['E', 'M', 'A', 'N']) is False)
 
 
-def print_subsequence(seq, subseq, prefix=''):
+def print_subsequence(seq, subseq, prefix='', show_seq=True):
     '''Prints a subsequence aligned with the matches in the sequence.
 
     IMPORTANT: the subsequence must indeed be a subsequence. The code will
-    fail miserably if it's not.'''
+    fail miserably if it's not.
+    '''
     lcs_aligned = list()
     i = 0
     # Go through the subsequence elements in the order they are specified
@@ -39,7 +40,8 @@ def print_subsequence(seq, subseq, prefix=''):
         else:
             lcs_aligned.append('.')
 
-    print('{} {}'.format(prefix, seq))
+    if show_seq:
+        print('{} {}'.format(prefix, seq))
     print('{} {} size={}'.format(
         prefix, ''.join(lcs_aligned), len(subseq)))
 

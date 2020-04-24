@@ -122,7 +122,8 @@ def test(visualize=False):
         print('Visual inspection:')
         dna = lcs_utils.random_dna_sequence(30)
         dna_strand = lcs_utils.random_dna_sequence(20)
-        for alg in algorithms:
+        for i, alg in enumerate(algorithms):
             lcs = alg(dna, dna_strand)
             lcs_utils.print_subsequence(
-                dna, lcs, prefix='{:>40}: '.format(alg.__module__))
+                dna, lcs, prefix='{:>40}: '.format(alg.__module__),
+                show_seq=i == 0)
