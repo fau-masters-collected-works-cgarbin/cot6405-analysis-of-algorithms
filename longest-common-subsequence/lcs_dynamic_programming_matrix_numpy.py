@@ -56,7 +56,9 @@ def _lcs_grid(xs, ys):
     # Note that we start with 1, not the traditional 0 because the first
     # column and first row are used as sentinels to avoid special cases
     # in the code (sentinel = length is zero, no move)
-    grid = np.zeros(shape=(len(xs)+1, len(ys)+1), dtype=np.int32)
+    grid = np.empty(shape=(len(xs) + 1, len(ys) + 1), dtype=np.int32)
+    grid[:, 0] = 0
+    grid[0, :] = 0
 
     for i in range(1, len(xs) + 1):
         x = xs[i-1]  # Remember that we use index 0 as a sentinel
