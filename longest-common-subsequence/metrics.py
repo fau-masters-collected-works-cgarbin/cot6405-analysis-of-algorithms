@@ -1,9 +1,14 @@
+#!../env/bin/python
 '''Run the experiments and collect metrics.
 '''
 from collections import namedtuple
 from memory_profiler import memory_usage
 import pandas as pd
 import random
+import time
+import lcs_empty
+import gc
+import os
 import lcs_brute_force
 import lcs_dynamic_programming_dict
 import lcs_dynamic_programming_matrix_python
@@ -13,10 +18,6 @@ import lcs_hirschberg_numpy
 import lcs_recursive
 import lcs_test
 import lcs_utils
-import time
-import lcs_empty
-import gc
-
 
 # The algorithms to collect metrics for
 Algorithm = namedtuple('Algorithm', ['function', 'description'])
@@ -37,12 +38,14 @@ DF_MEMORY = 'Memory (KiB)'
 
 
 # The tests to execute
-#tests = [(1_000, 100), (10_000, 1_000), (100_000, 10_000)]
-# tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
 tests = [(1_000, 100), (10_000, 1_000)]
+# tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
+# tests = [(1_000, 100), (10_000, 1_000),
+#          (100_000, 10_000), (1_000_000, 100_000)]
+# tests = [(1_000_000, 10_000)]
 
 
-def _runtime(repeat=2, verbose=1):
+def _runtime_tests(repeat=2, verbose=1):
     '''Measures algorithms' runtime.
 
     Keyword Arguments:
@@ -77,19 +80,22 @@ def _runtime(repeat=2, verbose=1):
         # Create the test strings only once to correcly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
         dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
+        if verbose >= 1:
+            print('\n\nSequence {:,}, subsequence {:,}: '.format(
+                len(dna), len(dna_strand), end='', flush=True))
 
         for alg in algorithms:
             if verbose == 1:
-                print('\n{}: '.format(alg.description), end='', flush=True)
+                print('\n   {}: '.format(alg.description), end='', flush=True)
             for i in range(repeat):
                 _run_test(alg, dna, dna_size)
-                if verbose >= 1:
+                if verbose == 1:
                     print('{}/{},'.format(i+1, repeat), end='', flush=True)
 
     return results
 
 
-def _memory(repeat=2, verbose=1):
+def _memory_tests(repeat=2, verbose=1):
     '''Measures algorithms' memory usage.
 
     Memory usage has to be done separately from runtime measurement because
@@ -104,7 +110,7 @@ def _memory(repeat=2, verbose=1):
     2. Call an empty function to get a memory usage basline.
 
     Also, call this function right after calling the time measurement function.
-    This allows the environment to reach a stable memory usage state (e.g. load
+    This allows the environment to reach a stable memory usage state(e.g. load
     all modules it needs), so a better baseline can be measured.
 
     Keyword Arguments:
@@ -121,7 +127,7 @@ def _memory(repeat=2, verbose=1):
             - The amount of memory used in KiB.
             - The time to execute to the algorithm, but note that measuring
               memory usage affects runtime, especially for the faster
-              case (fast algorithms and/or small input size).
+              case(fast algorithms and/or small input size).
     '''
     results = []
 
@@ -152,32 +158,35 @@ def _memory(repeat=2, verbose=1):
         # Create the test strings only once to correcly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
         dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
+        if verbose >= 1:
+            print('\n\nSequence {:,}, subsequence {:,}: '.format(
+                len(dna), len(dna_strand), end='', flush=True))
 
         for alg in algorithms:
             if verbose == 1:
-                print('\n{}: '.format(alg.description), end='', flush=True)
+                print('\n   {}: '.format(alg.description), end='', flush=True)
             for i in range(repeat):
                 _run_test(alg, dna, dna_strand)
-                if verbose >= 1:
+                if verbose == 1:
                     print('{}/{},'.format(i+1, repeat), end='', flush=True)
 
     return results
 
 
-def runtime(repeat=2, verbose=1):
-    """Runs runtime tests and returns raw and summary statistics.
+def _runtime(repeat=2, verbose=1):
+    '''Runs runtime tests and returns raw and summary statistics.
 
     Keyword Arguments:
-        repeat {int} -- How many times to measure each algorithm.
-        verbose {int} -- Set to > 0 for different levels of outputs while
+        repeat {int} - - How many times to measure each algorithm.
+        verbose {int} - - Set to > 0 for different levels of outputs while
             testing.
 
     Returns:
-        DataFrame -- Raw results of all runs, as documented in the internal
+        DataFrame - - Raw results of all runs, as documented in the internal
             function.
-        DataFrame -- Summary results, with average runtime for each experiment.
-    """
-    results_raw = _runtime(repeat, verbose)
+        DataFrame - - Summary results, with average runtime for each experiment.
+    '''
+    results_raw = _runtime_tests(repeat, verbose)
 
     # Raw results - all data points
     results_raw_pd = pd.DataFrame(results_raw)
@@ -195,21 +204,21 @@ def runtime(repeat=2, verbose=1):
     return results_raw_pd, results_summary_pd
 
 
-def memory(repeat=2, verbose=1):
-    """Runs memory usage tests and returns raw and summary statistics.
+def _memory(repeat=2, verbose=1):
+    '''Runs memory usage tests and returns raw and summary statistics.
 
     Keyword Arguments:
-        repeat {int} -- How many times to measure each algorithm.
-        verbose {int} -- Set to > 0 for different levels of outputs while
+        repeat {int} - - How many times to measure each algorithm.
+        verbose {int} - - Set to > 0 for different levels of outputs while
             testing.
 
     Returns:
-        DataFrame -- Raw results of all runs, as documented in the internal
+        DataFrame - - Raw results of all runs, as documented in the internal
             function.
-        DataFrame -- Summary results, with average memory usage for each
+        DataFrame - - Summary results, with average memory usage for each
             experiment.
-    """
-    results_raw = _memory(repeat, verbose)
+    '''
+    results_raw = _memory_tests(repeat, verbose)
 
     # Raw results - all data points
     results_raw_pd = pd.DataFrame(results_raw)
@@ -230,3 +239,59 @@ def memory(repeat=2, verbose=1):
     results_summary_pd.reset_index(inplace=True)
 
     return results_raw_pd, results_summary_pd
+
+
+def _run_experiment(experiment, repeat=2, verbose=1, file=None):
+    '''Run the experiment or load from the cached file, if one is given.
+
+    Arguments:
+        experiment {[function]} - - The experiment to run, runtime or memory
+            measurements.
+
+    Keyword Arguments:
+        repeat {int} - - How many times to measure each algorithm.
+        verbose {int} - - Set to > 0 for different levels of outputs while
+            testing.
+        file {[strung]} - - Name of the file to read from (from a previous run),
+            or cached the results to if the experiment is executed.
+
+    Returns:
+        DataFrame - - Raw results of all runs, as documented in the internal
+            function.
+        DataFrame - - Summary results, with average memory usage for each
+            experiment.
+    '''
+    # Load from file, if there is one
+    if file is not None:
+        raw_file = file + '-raw.csv'
+        summary_file = file + '-summary.csv'
+
+        if os.path.isfile(raw_file) and os.path.isfile(summary_file):
+            print('Loading from file')
+            raw = pd.read_csv(raw_file)
+            summary = pd.read_csv(summary_file)
+            return raw, summary
+
+    # Can't load from files or file name was not provided
+    # Run the experiments
+    raw, summary = experiment(repeat=repeat, verbose=verbose)
+
+    # Save to file, for the next time the function is called
+    if file is not None:
+        raw.to_csv(file + '-raw.csv')
+        summary.to_csv(file + '-summary.csv')
+
+
+def runtime(repeat=2, verbose=1, file=None):
+    return _run_experiment(_runtime, repeat, verbose, file)
+
+
+def memory(repeat=2, verbose=1, file=None):
+    return _run_experiment(_memory, repeat, verbose, file)
+
+
+if __name__ == "__main__":
+    random.seed(42)
+    lcs_test.test(visualize=True)
+    runtime(repeat=2, verbose=2, file='runtime')
+    memory(repeat=2, verbose=2, file='memory')
