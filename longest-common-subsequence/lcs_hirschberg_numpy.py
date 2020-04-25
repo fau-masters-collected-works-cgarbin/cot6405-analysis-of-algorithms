@@ -41,10 +41,8 @@ def _lcs_lens(xs, x_start, x_end, ys, y_start, y_end):
         x = xs[i]
         c = 0
         for j in range(y_start, y_end, step):
-            if x == ys[j]:
-                curr[c + 1] = prev[c] + 1
-            else:
-                curr[c + 1] = max(curr[c], prev[c + 1])
+            curr[c + 1] = prev[c] + 1 if x == ys[j] \
+                else max(curr[c], prev[c + 1])
             c += 1
 
     return curr
@@ -52,7 +50,9 @@ def _lcs_lens(xs, x_start, x_end, ys, y_start, y_end):
 
 @njit
 def _lcs(xs, x_start, x_end, ys, y_start, y_end):
-    '''Returns a longest common subsequence of xs, ys.'''
+    '''Returns a longest common subsequence of
+        xs[x_start:x_end], ys[y_start:y_end].
+    '''
     # Empty array of strings, to let numba infer the type
     empty_string_list = [str('X') for _ in range(0)]
     nx = x_end - x_start
@@ -62,7 +62,8 @@ def _lcs(xs, x_start, x_end, ys, y_start, y_end):
     elif nx == 1:
         # Only one character in the sequence
         # If it is in the other sequence, it's part of the LCS
-        return [xs[x_start]] if xs[x_start] in ys[y_start:y_end] else empty_string_list
+        return [xs[x_start]] if xs[x_start] in ys[y_start:y_end] \
+            else empty_string_list
     else:
         # Find the node to split the xs/ys matrix and split it into two
         # This is the "q" node referred to in algorithms
