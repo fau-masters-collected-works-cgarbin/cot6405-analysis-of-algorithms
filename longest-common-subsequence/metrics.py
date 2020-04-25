@@ -15,6 +15,7 @@ import lcs_dynamic_programming_matrix_python
 import lcs_dynamic_programming_matrix_numpy
 import lcs_hirschberg
 import lcs_hirschberg_numpy
+import lcs_hirschberg_numpy_slices
 import lcs_recursive
 import lcs_test
 import lcs_utils
@@ -26,6 +27,7 @@ algorithms = [
     Algorithm(lcs_dynamic_programming_matrix_numpy.lcs,
               'Dynamic programming NumPy'),
     Algorithm(lcs_hirschberg_numpy.lcs, 'Hirschberg NumPy'),
+    Algorithm(lcs_hirschberg_numpy_slices.lcs, 'Hirschberg NumPy Org'),
 ]
 
 # DataFrame columns
@@ -38,8 +40,8 @@ DF_MEMORY = 'Memory (KiB)'
 
 
 # The tests to execute
-tests = [(1_000, 100), (10_000, 1_000)]
-# tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
+# tests = [(1_000, 100), (10_000, 1_000)]
+tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
 # tests = [(1_000, 100), (10_000, 1_000),
 #          (100_000, 10_000), (1_000_000, 100_000)]
 # tests = [(1_000_000, 10_000)]
