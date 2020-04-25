@@ -21,8 +21,11 @@ import lcs_test
 
 random.seed(42)
 
-dna = lcs_utils.random_dna_sequence(1_000)
-dna_strand = lcs_utils.random_dna_sequence(100)
+dna = lcs_utils.random_dna_sequence(10_000)
+dna_strand = lcs_utils.random_dna_sequence(1_000)
+
+# Uncomment to test algorithm before profiling
+# lcs_test.test()
 
 # Change this line to call the function to bre profiled
 # Remember to import line_profiler in that file and add @profile
