@@ -8,6 +8,7 @@ import lcs_dynamic_programming_matrix_python
 import lcs_dynamic_programming_matrix_numpy
 import lcs_hirschberg
 import lcs_hirschberg_numpy
+import lcs_hirschberg_numpy_slices
 import lcs_recursive
 import lcs_utils
 
@@ -19,6 +20,7 @@ algorithms = [
     lcs_dynamic_programming_matrix_numpy.lcs,
     lcs_hirschberg.lcs,
     lcs_hirschberg_numpy.lcs,
+    lcs_hirschberg_numpy_slices.lcs,
 ]
 
 
@@ -37,8 +39,6 @@ def _test_lcs(alg, xs, ys, expected=None):
 def _test_lcs_algorithm(alg):
     '''Tests the LCS algoritm `alg` with controlled input to check if the
     algorithm is working correctly.'''
-
-    _test_lcs(alg, 'HUMAN', 'CHIMPANZEE')
 
     # No match case
     _test_lcs(alg, 'ABC', 'XYZ', [])

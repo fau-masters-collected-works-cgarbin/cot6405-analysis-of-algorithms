@@ -5,7 +5,12 @@ memory used by the dynamic programming version.
 
 Code based on http://wordaligned.org/articles/longest-common-subsequence.
 
-This version also uses NumPy for the arrays to save even more memory.
+This version has two modifications:
+
+1. Uses NumPy for the arrays to save even more memory and faster performance.
+2. Uses indices into the original sequences, instead of slicing the sequences
+   in each function call. This reduces the amount of memory that needs to be
+   copied around.
 
 IMPORTANT: this version is faster only when used with Numba. Without Numba it
 is much slower than the version that uses Python arrays. This is caused by
@@ -20,59 +25,79 @@ from numba import njit
 
 
 @njit
-def _lcs_lens(xs, ys):
+def _lcs_lens(xs, x_start, x_end, ys, y_start, y_end):
     '''Calculates the cost for the sequences.
 
     This cost is used to decide where to split the sequences.'''
     # Start with zero costs
-    curr = np.zeros(1 + len(ys), dtype=np.int32)
+    len_ys = abs(y_end - y_start)
+    curr = np.zeros(1 + len_ys, dtype=np.int32)
+
+    step = 1 if x_start <= x_end else -1
 
     # Go through the sequences and adjust costs
-    for x in xs:
+    for i in range(x_start, x_end, step):
         prev = curr.copy()
-        for i, y in enumerate(ys):
-            if x == y:
-                curr[i + 1] = prev[i] + 1
+        x = xs[i]
+        c = 0
+        for j in range(y_start, y_end, step):
+            if x == ys[j]:
+                curr[c + 1] = prev[c] + 1
             else:
-                curr[i + 1] = max(curr[i], prev[i + 1])
+                curr[c + 1] = max(curr[c], prev[c + 1])
+            c += 1
+
     return curr
 
 
 @njit
-def lcs(xs, ys):
+def _lcs(xs, x_start, x_end, ys, y_start, y_end):
     '''Returns a longest common subsequence of xs, ys.'''
     # Empty array of strings, to let numba infer the type
     empty_string_list = [str('X') for _ in range(0)]
-    nx = len(xs)
+    nx = x_end - x_start
     if nx == 0:
         # Empty input - got to the end of the sequence
         return empty_string_list
     elif nx == 1:
         # Only one character in the sequence
         # If it is in the other sequence, it's part of the LCS
-        return [xs[0]] if xs[0] in ys else empty_string_list
+        return [xs[x_start]] if xs[x_start] in ys[y_start:y_end] else empty_string_list
     else:
         # Find the node to split the xs/ys matrix and split it into two
         # This is the "q" node referred to in algorithms
 
-        # Split xs into two halves
+        # Split the xs range into two halves
         i = nx // 2
-        xb, xe = xs[:i], xs[i:]
+
+        # Since we are working with indices inside the full sequence, the split
+        # needs to be adjusted to split the full sequence
+        i += x_start
 
         # Cost for the top-left part (first half of xs + ys)
-        ll_b = _lcs_lens(xb, ys)
+        # ll_b = _lcs_lens(xb, ys)
+        ll_b = _lcs_lens(xs, x_start, i, ys, y_start, y_end)
         # Cost for the bottom-right part (inverted second half of xs, ys)
-        ll_e = _lcs_lens(xe[::-1], ys[::-1])
+        # ll_e = _lcs_lens(xe[::-1], ys[::-1])
+        ll_e = _lcs_lens(xs, x_end-1, i-1, ys, y_end-1, y_start-1)
         # Invert the costs (of the inverted second half) to align it
         # with the costs of the first half
         ll_e_r = ll_e[::-1]
 
         # Choose the ys split based on cost (now we have "q")
-        # Find the max is done with a loop to allow numba optimization
         cost = ll_b + ll_e_r
         k = np.argmax(cost)
 
-        yb, ye = ys[:k], ys[k:]
+        # Since we are working with indices inside the full sequence, k needs
+        # to be adjusted to split the full sequence
+        k += y_start
 
         # Solve each part of the split matrix
-        return lcs(xb, yb) + lcs(xe, ye)
+        # return lcs(xb, yb) + lcs(xe, ye)
+        return _lcs(xs, x_start, i, ys, y_start, k) + \
+            _lcs(xs, i, x_end, ys, k, y_end)
+
+
+@njit
+def lcs(xs, ys):
+    return _lcs(xs, 0, len(xs), ys, 0, len(ys))
