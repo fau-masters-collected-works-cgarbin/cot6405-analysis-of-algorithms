@@ -27,7 +27,6 @@ algorithms = [
     Algorithm(lcs_dynamic_programming_matrix_numpy.lcs,
               'Dynamic programming NumPy'),
     Algorithm(lcs_hirschberg_numpy.lcs, 'Hirschberg NumPy'),
-    Algorithm(lcs_hirschberg_numpy_slices.lcs, 'Hirschberg NumPy Org'),
 ]
 
 # DataFrame columns
@@ -39,12 +38,17 @@ DF_RUNTIME = 'Runtime (s)'
 DF_MEMORY = 'Memory (KiB)'
 
 
-# The tests to execute
+# Smaller tests
 # tests = [(1_000, 100), (10_000, 1_000)]
-tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
+# tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
+# tests = [(1_000_000, 10_000)]
+
+# The test from the proposal
 # tests = [(1_000, 100), (10_000, 1_000),
 #          (100_000, 10_000), (1_000_000, 100_000)]
-# tests = [(1_000_000, 10_000)]
+
+# The tests we can reaslistically do
+tests = [(1_000, 100), (10_000, 1_000),  (100_000, 10_000)]
 
 
 def _runtime_tests(repeat=2, verbose=1):
@@ -88,7 +92,8 @@ def _runtime_tests(repeat=2, verbose=1):
 
         for alg in algorithms:
             if verbose == 1:
-                print('\n   {}: '.format(alg.description), end='', flush=True)
+                print('\n   {}: '.format(alg.description),
+                      end='', flush=True)
             for i in range(repeat):
                 _run_test(alg, dna, dna_size)
                 if verbose == 1:
@@ -166,7 +171,8 @@ def _memory_tests(repeat=2, verbose=1):
 
         for alg in algorithms:
             if verbose == 1:
-                print('\n   {}: '.format(alg.description), end='', flush=True)
+                print('\n   {}: '.format(alg.description),
+                      end='', flush=True)
             for i in range(repeat):
                 _run_test(alg, dna, dna_strand)
                 if verbose == 1:
@@ -270,8 +276,8 @@ def _run_experiment(experiment, repeat=2, verbose=1, file=None):
 
         if os.path.isfile(raw_file) and os.path.isfile(summary_file):
             print('Loading from file')
-            raw = pd.read_csv(raw_file)
-            summary = pd.read_csv(summary_file)
+            raw = pd.read_csv(raw_file, index_col=0)
+            summary = pd.read_csv(summary_file, index_col=0)
             return raw, summary
 
     # Can't load from files or file name was not provided
@@ -282,6 +288,8 @@ def _run_experiment(experiment, repeat=2, verbose=1, file=None):
     if file is not None:
         raw.to_csv(file + '-raw.csv')
         summary.to_csv(file + '-summary.csv')
+
+    return raw, summary
 
 
 def runtime(repeat=2, verbose=1, file=None):
@@ -295,5 +303,5 @@ def memory(repeat=2, verbose=1, file=None):
 if __name__ == "__main__":
     random.seed(42)
     lcs_test.test(visualize=True)
-    runtime(repeat=2, verbose=2, file='runtime')
-    memory(repeat=2, verbose=2, file='memory')
+    runtime(repeat=10, verbose=2, file='runtime')
+    memory(repeat=10, verbose=2, file='memory')
