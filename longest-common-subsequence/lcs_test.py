@@ -12,7 +12,8 @@ import lcs_hirschberg_numpy_slices
 import lcs_recursive
 import lcs_utils
 
-algorithms = [
+# All algorithms
+algorithms_all = [
     lcs_brute_force.lcs,
     lcs_recursive.lcs,
     lcs_dynamic_programming_dict.lcs,
@@ -21,6 +22,13 @@ algorithms = [
     lcs_hirschberg.lcs,
     lcs_hirschberg_numpy.lcs,
     lcs_hirschberg_numpy_slices.lcs,
+]
+
+# Algorithms used in the report
+algorithms_report = [
+    lcs_brute_force.lcs,
+    lcs_dynamic_programming_matrix_numpy.lcs,
+    lcs_hirschberg_numpy.lcs,
 ]
 
 
@@ -63,7 +71,7 @@ def _test_lcs_algorithm(alg):
     _test_lcs(alg, 'HUMAN', 'CHIMPANZEE', ['H', 'M', 'A', 'N'])
 
 
-def _test_basic_cases():
+def _test_basic_cases(algorithms):
     '''Runs all tests in all LCS algorithms using controlled input.
 
     Run these tests first. If they fail, they are easier to debug.
@@ -74,7 +82,7 @@ def _test_basic_cases():
     print('All basic tests passed')
 
 
-def _test_dna_strand():
+def _test_dna_strand(algorithms):
     '''Runs all tests in all LCS algorithms using simulated DNA sequences.
 
     These tests use large(ish) DNA sequences. With large input, the LCS that
@@ -100,7 +108,7 @@ def _test_dna_strand():
     print('All DNA tests passed')
 
 
-def test(visualize=False):
+def test(visualize=False, all_algorithms=False):
     '''Tests if the algorithms are working correctly.
 
     Two tests are executed:
@@ -114,9 +122,13 @@ def test(visualize=False):
             found by the algorithms. This is an extra check, to visualize
             inspect the results, in case the test code itself is under
             suspicion.
+        all_algorithms {bool} -- set to True to test all algorithms, or False
+            to test only the algorithms used in the report.
     '''
-    _test_basic_cases()
-    _test_dna_strand()
+    algorithms = algorithms_all if all_algorithms else algorithms_report
+
+    _test_basic_cases(algorithms)
+    _test_dna_strand(algorithms)
 
     if visualize:
         print('Visual inspection:')
