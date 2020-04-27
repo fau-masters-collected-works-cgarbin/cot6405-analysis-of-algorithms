@@ -20,23 +20,27 @@ import lcs_recursive
 import lcs_test
 import lcs_utils
 
-# The algorithms to collect metrics for
-Algorithm = namedtuple('Algorithm', ['function', 'description'])
-algorithms = [
-    Algorithm(lcs_brute_force.lcs, 'Brute force'),
-    Algorithm(lcs_dynamic_programming_matrix_numpy.lcs,
-              'Dynamic programming NumPy'),
-    Algorithm(lcs_hirschberg_numpy.lcs, 'Hirschberg NumPy'),
-]
-
 # DataFrame columns
 DF_ALGORITHM = 'Algorithm'
 DF_SEQ_SIZE = 'Sequence size'
 DF_SUBSEQ_SIZE = 'Subsequence size'
 DF_TEST_NUMBER = 'Test number'
-DF_RUNTIME = 'Runtime (s)'
+DF_EMPIRICAL_RT = 'Empirical RT (ms)'
 DF_MEMORY = 'Memory (KiB)'
 
+# Algorithm names
+ALG_BRUTE_FORCE = 'Brute force'
+ALG_DYNAMIC_PROGRAMMING = 'Dynamic programming'
+ALG_HIRSCHBERG = 'Hirschberg'
+
+# The algorithms to collect metrics for
+Algorithm = namedtuple('Algorithm', ['function', 'description'])
+algorithms = [
+    Algorithm(lcs_brute_force.lcs, ALG_BRUTE_FORCE),
+    Algorithm(lcs_dynamic_programming_matrix_numpy.lcs,
+              ALG_DYNAMIC_PROGRAMMING),
+    Algorithm(lcs_hirschberg_numpy.lcs, ALG_HIRSCHBERG),
+]
 
 # Smaller tests
 # tests = [(1_000, 100), (10_000, 1_000)]
@@ -73,7 +77,7 @@ def _runtime_tests(repeat=2, verbose=1):
     def _run_test(alg, seq_size, subseq_size):
         start = time.process_time()
         lcs = alg.function(dna, dna_strand)
-        total_time = time.process_time() - start
+        total_time = (time.process_time() - start) * 1000
         results.append([alg.description, dna_size, dna_strand_size,
                         i+1, total_time])
         # Make that the algorithm is working correctly
@@ -185,21 +189,21 @@ def _runtime(repeat=2, verbose=1):
     '''Runs runtime tests and returns raw and summary statistics.
 
     Keyword Arguments:
-        repeat {int} - - How many times to measure each algorithm.
-        verbose {int} - - Set to > 0 for different levels of outputs while
+        repeat {int} -- How many times to measure each algorithm.
+        verbose {int} -- Set to > 0 for different levels of outputs while
             testing.
 
     Returns:
-        DataFrame - - Raw results of all runs, as documented in the internal
+        DataFrame -- Raw results of all runs, as documented in the internal
             function.
-        DataFrame - - Summary results, with average runtime for each experiment.
+        DataFrame -- Summary results, with average runtime for each experiment.
     '''
     results_raw = _runtime_tests(repeat, verbose)
 
     # Raw results - all data points
     results_raw_pd = pd.DataFrame(results_raw)
     results_raw_pd.columns = [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE,
-                              DF_TEST_NUMBER, DF_RUNTIME]
+                              DF_TEST_NUMBER, DF_EMPIRICAL_RT]
 
     # Summary results - average runtime for each experiment
     results_summary_pd = results_raw_pd.groupby(
@@ -216,14 +220,14 @@ def _memory(repeat=2, verbose=1):
     '''Runs memory usage tests and returns raw and summary statistics.
 
     Keyword Arguments:
-        repeat {int} - - How many times to measure each algorithm.
-        verbose {int} - - Set to > 0 for different levels of outputs while
+        repeat {int} -- How many times to measure each algorithm.
+        verbose {int} -- Set to > 0 for different levels of outputs while
             testing.
 
     Returns:
-        DataFrame - - Raw results of all runs, as documented in the internal
+        DataFrame -- Raw results of all runs, as documented in the internal
             function.
-        DataFrame - - Summary results, with average memory usage for each
+        DataFrame -- Summary results, with average memory usage for each
             experiment.
     '''
     results_raw = _memory_tests(repeat, verbose)
@@ -231,7 +235,7 @@ def _memory(repeat=2, verbose=1):
     # Raw results - all data points
     results_raw_pd = pd.DataFrame(results_raw)
     results_raw_pd.columns = [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE,
-                              DF_TEST_NUMBER, DF_MEMORY, DF_RUNTIME]
+                              DF_TEST_NUMBER, DF_MEMORY, DF_EMPIRICAL_RT]
 
     # Despite all tricks to set a memory baseline, it still returns a baseline
     # that is larger than the memory used by the algorithm. This results in
@@ -298,6 +302,48 @@ def runtime(repeat=2, verbose=1, file=None):
 
 def memory(repeat=2, verbose=1, file=None):
     return _run_experiment(_memory, repeat, verbose, file)
+
+
+def add_analysis(summary, alg):
+    '''Add analysis to a summary dataframe.
+
+    The following columns are added to the dataframe:
+
+    - Theoretical complexity
+    - Empirical / theoretical ratio
+    - Predicted RT, calculated as c * theoretical complexity
+    - % error, calculated as (empirical RT - predicted RT)/empiricial RT * 100
+
+    Arguments:
+        summary {DataFrame} -- A summary dataframe, created by running the
+            experiments.
+        alg {string} -- What algorithm to analyze in the summary dataframe
+
+    Returns:
+        DataFrame -- A dataframe with entries for `alg`, augmented with the new
+            columns.
+        int -- The constant c calculated from the `alg` entries.
+    '''
+    THEORETICAL_COMPLEXITY = 'Theoretical complexity'
+    RATIO = 'Ratio'
+    PREDICTED_RT = 'Predicted RT'
+
+    df = summary[summary[DF_ALGORITHM] == alg]
+
+    if alg == ALG_BRUTE_FORCE:
+        # "/1" is a trick to force Pandas/NumPy to calculate with maximum
+        # precision - without it, it overflows and sets the value to zero
+        df[THEORETICAL_COMPLEXITY] = 2 ** (df[DF_SUBSEQ_SIZE] / 1)
+    else:
+        df[THEORETICAL_COMPLEXITY] = df[DF_SEQ_SIZE] * df[DF_SUBSEQ_SIZE]
+
+    df[RATIO] = df[DF_EMPIRICAL_RT] / df[THEORETICAL_COMPLEXITY]
+    c = max(df[RATIO])
+    df[PREDICTED_RT] = c * df[THEORETICAL_COMPLEXITY]
+    df['% error'] = (df[DF_EMPIRICAL_RT] - df[PREDICTED_RT]) / \
+        df[DF_EMPIRICAL_RT] * 100
+
+    return df, c
 
 
 if __name__ == "__main__":
