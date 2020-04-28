@@ -9,6 +9,7 @@ import time
 import lcs_empty
 import gc
 import os
+import sys
 import lcs_brute_force
 import lcs_dynamic_programming_dict
 import lcs_dynamic_programming_matrix_python
@@ -42,21 +43,24 @@ algorithms = [
     Algorithm(lcs_hirschberg_numpy.lcs, ALG_HIRSCHBERG),
 ]
 
-# Smaller tests
-# tests = [(1_000, 100), (10_000, 1_000)]
-# tests = [(1_000, 100), (10_000, 1_000), (100_000, 1_000)]
-# tests = [(1_000_000, 10_000)]
+seq_phase1 = [
+    (1_000, 100), (2_000, 200), (3_000, 300),
+    (4_000, 300), (4_000, 500), (4_000, 1_000),
+    (5_000, 900), (5_000, 1_000), (5_000, 1_200),
+]
 
-# The test from the proposal
-# tests = [(1_000, 100), (10_000, 1_000),
-#          (100_000, 10_000), (1_000_000, 100_000)]
+seq_phase2 = [
+    (10_000, 500), (10_000, 800), (10_000, 1_000),
+    (20_000, 1_000), (20_000, 2_000), (20_000, 2_500),
+    (30_000, 2_000), (30_000, 3_000), (30_000, 4_000),
+]
 
-# The tests we can reaslistically do
-tests = [(1_000, 100), (10_000, 1_000),  (100_000, 10_000)]
 
-
-def _runtime_tests(repeat=2, verbose=1):
+def _runtime_tests(sequences, repeat=2, verbose=1):
     '''Measures algorithms' runtime.
+
+    Arguments:
+        sequences {list} -- The pairs of sequences/subsequence sizes to test.
 
     Keyword Arguments:
         repeat {int} -- How many times to measure each algorithm.
@@ -86,7 +90,7 @@ def _runtime_tests(repeat=2, verbose=1):
             print('  {:>30}: {:.3f}'.format(alg.description, results[-1][4]))
 
     # Run all tests
-    for dna_size, dna_strand_size in tests:
+    for dna_size, dna_strand_size in sequences:
         # Create the test strings only once to correcly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
         dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
@@ -106,7 +110,7 @@ def _runtime_tests(repeat=2, verbose=1):
     return results
 
 
-def _memory_tests(repeat=2, verbose=1):
+def _memory_tests(sequences, repeat=2, verbose=1):
     '''Measures algorithms' memory usage.
 
     Memory usage has to be done separately from runtime measurement because
@@ -123,6 +127,9 @@ def _memory_tests(repeat=2, verbose=1):
     Also, call this function right after calling the time measurement function.
     This allows the environment to reach a stable memory usage state(e.g. load
     all modules it needs), so a better baseline can be measured.
+
+    Arguments:
+        sequences {list} -- The pairs of sequences/subsequence sizes to test.
 
     Keyword Arguments:
         repeat {int} -- How many times to measure each algorithm.
@@ -155,7 +162,7 @@ def _memory_tests(repeat=2, verbose=1):
         start = time.process_time()
         mem_usage = memory_usage((alg.function, (dna, dna_strand)),
                                  interval=0.01)
-        total_time = time.process_time() - start
+        total_time = (time.process_time() - start) * 1000
         results.append([alg.description, dna_size, dna_strand_size,
                         i + 1, max(mem_usage) - mem_baseline,
                         total_time])
@@ -165,7 +172,7 @@ def _memory_tests(repeat=2, verbose=1):
                 mem_usage[:5]))
 
     # Run all tests
-    for dna_size, dna_strand_size in tests:
+    for dna_size, dna_strand_size in sequences:
         # Create the test strings only once to correcly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
         dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
@@ -185,8 +192,11 @@ def _memory_tests(repeat=2, verbose=1):
     return results
 
 
-def _runtime(repeat=2, verbose=1):
+def _runtime(sequences, repeat=2, verbose=1):
     '''Runs runtime tests and returns raw and summary statistics.
+
+    Arguments:
+        sequences {list} -- The pairs of sequences/subsequence sizes to test.
 
     Keyword Arguments:
         repeat {int} -- How many times to measure each algorithm.
@@ -198,7 +208,7 @@ def _runtime(repeat=2, verbose=1):
             function.
         DataFrame -- Summary results, with average runtime for each experiment.
     '''
-    results_raw = _runtime_tests(repeat, verbose)
+    results_raw = _runtime_tests(sequences, repeat, verbose)
 
     # Raw results - all data points
     results_raw_pd = pd.DataFrame(results_raw)
@@ -216,8 +226,11 @@ def _runtime(repeat=2, verbose=1):
     return results_raw_pd, results_summary_pd
 
 
-def _memory(repeat=2, verbose=1):
+def _memory(sequences, repeat=2, verbose=1):
     '''Runs memory usage tests and returns raw and summary statistics.
+
+    Arguments:
+        sequences {list} -- The pairs of sequences/subsequence sizes to test.
 
     Keyword Arguments:
         repeat {int} -- How many times to measure each algorithm.
@@ -230,7 +243,7 @@ def _memory(repeat=2, verbose=1):
         DataFrame -- Summary results, with average memory usage for each
             experiment.
     '''
-    results_raw = _memory_tests(repeat, verbose)
+    results_raw = _memory_tests(sequences, repeat, verbose)
 
     # Raw results - all data points
     results_raw_pd = pd.DataFrame(results_raw)
@@ -253,24 +266,25 @@ def _memory(repeat=2, verbose=1):
     return results_raw_pd, results_summary_pd
 
 
-def _run_experiment(experiment, repeat=2, verbose=1, file=None):
+def _run_experiment(experiment, sequences, repeat=2, verbose=1, file=None):
     '''Run the experiment or load from the cached file, if one is given.
 
     Arguments:
-        experiment {[function]} - - The experiment to run, runtime or memory
+        experiment {function} -- The experiment to run, runtime or memory
             measurements.
+        sequences {list} -- The pairs of sequences/subsequence sizes to test.
 
     Keyword Arguments:
-        repeat {int} - - How many times to measure each algorithm.
-        verbose {int} - - Set to > 0 for different levels of outputs while
+        repeat {int} -- How many times to measure each algorithm.
+        verbose {int} -- Set to > 0 for different levels of outputs while
             testing.
-        file {[strung]} - - Name of the file to read from (from a previous run),
+        file {[strung]} -- Name of the file to read from (from a previous run),
             or cached the results to if the experiment is executed.
 
     Returns:
-        DataFrame - - Raw results of all runs, as documented in the internal
+        DataFrame -- Raw results of all runs, as documented in the internal
             function.
-        DataFrame - - Summary results, with average memory usage for each
+        DataFrame -- Summary results, with average memory usage for each
             experiment.
     '''
     # Load from file, if there is one
@@ -286,7 +300,7 @@ def _run_experiment(experiment, repeat=2, verbose=1, file=None):
 
     # Can't load from files or file name was not provided
     # Run the experiments
-    raw, summary = experiment(repeat=repeat, verbose=verbose)
+    raw, summary = experiment(sequences, repeat=repeat, verbose=verbose)
 
     # Save to file, for the next time the function is called
     if file is not None:
@@ -296,12 +310,12 @@ def _run_experiment(experiment, repeat=2, verbose=1, file=None):
     return raw, summary
 
 
-def runtime(repeat=2, verbose=1, file=None):
-    return _run_experiment(_runtime, repeat, verbose, file)
+def runtime(sequences, repeat=2, verbose=1, file=None):
+    return _run_experiment(_runtime, sequences, repeat, verbose, file)
 
 
-def memory(repeat=2, verbose=1, file=None):
-    return _run_experiment(_memory, repeat, verbose, file)
+def memory(sequences, repeat=2, verbose=1, file=None):
+    return _run_experiment(_memory, sequences, repeat, verbose, file)
 
 
 def add_analysis(summary, alg):
@@ -347,7 +361,22 @@ def add_analysis(summary, alg):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) is not 2:
+        print('Specify phase1 or phase2')
+        exit()
+
+    # For consistency across runs
     random.seed(42)
     lcs_test.test(visualize=True)
-    runtime(repeat=10, verbose=2, file='runtime')
-    memory(repeat=10, verbose=2, file='memory')
+
+    test = sys.argv[1]
+    if test == "phase1":
+        print('Running phase 1 tests')
+        runtime(seq_phase1, repeat=1, verbose=2, file='runtime-phase1')
+        memory(seq_phase1, repeat=1, verbose=2, file='memory-phase1')
+    elif test == "phase2":
+        print('Running phase 2 tests')
+        runtime(seq_phase2, repeat=10, verbose=2, file='runtime-phase2')
+        memory(seq_phase2, repeat=10, verbose=2, file='memory-phase2')
+    else:
+        print('Specify phase1 or phase2')
