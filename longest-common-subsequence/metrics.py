@@ -35,7 +35,7 @@ DF_PREDICTED_RT = 'Predicted RT'
 
 
 # Algorithm names
-ALG_BRUTE_FORCE = 'Brute force'
+ALG_BRUTE_FORCE = 'Brute-force'
 ALG_DYNAMIC_PROGRAMMING = 'Dynamic programming'
 ALG_HIRSCHBERG = 'Hirschberg'
 
@@ -343,7 +343,8 @@ def add_analysis(summary, alg):
             columns.
         int -- The constant c calculated from the `alg` entries.
     '''
-    df = summary[summary[DF_ALGORITHM] == alg]
+    filter = summary[DF_ALGORITHM] == alg
+    df = summary[filter].copy()  # copy because we will change it
 
     if alg == ALG_BRUTE_FORCE:
         # "/1" is a trick to force Pandas/NumPy to calculate with maximum
