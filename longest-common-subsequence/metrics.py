@@ -27,7 +27,7 @@ DF_SEQ_SIZE = 'Sequence size'
 DF_SUBSEQ_SIZE = 'Subsequence size'
 DF_TEST_NUMBER = 'Test number'
 DF_EMPIRICAL_RT = 'Empirical RT (ms)'
-DF_MEMORY = 'Memory (KiB)'
+DF_MEMORY = 'Memory (MiB)'
 # DataFrame columns - calculated data
 DF_THEORETICAL_COMPLEXITY = 'Theoretical complexity'
 DF_RATIO = 'Ratio'
@@ -67,10 +67,7 @@ def _runtime_tests(sequences, repeat=2, verbose=1):
     Arguments:
         sequences {list} -- The pairs of sequences/subsequence sizes to test.
 
-    Keyword Arguments:
-        repeat {int} -- How many times to measure each algorithm.
-        verbose {int} -- Set to > 0 for different levels of outputs while
-            testing.
+    ...other argumeents: see the caller function
 
     Returns:
         list -- A list of measurements. Each entry is an array with:
@@ -133,13 +130,7 @@ def _memory_tests(sequences, repeat=2, verbose=1):
     This allows the environment to reach a stable memory usage state(e.g. load
     all modules it needs), so a better baseline can be measured.
 
-    Arguments:
-        sequences {list} -- The pairs of sequences/subsequence sizes to test.
-
-    Keyword Arguments:
-        repeat {int} -- How many times to measure each algorithm.
-        verbose {int} -- Set to > 0 for different levels of outputs while
-            testing.
+    ...other argumeents: see the caller function
 
     Returns:
         list -- A list of measurements. Each entry is an array with:
@@ -147,7 +138,7 @@ def _memory_tests(sequences, repeat=2, verbose=1):
             - The size of the first sequence used in the test
             - The size of the second sequence used in the test
             - The repetition number (to identify each run)
-            - The amount of memory used in KiB.
+            - The amount of memory used in MiB.
             - The time to execute to the algorithm, but note that measuring
               memory usage affects runtime, especially for the faster
               case(fast algorithms and/or small input size).
@@ -200,75 +191,33 @@ def _memory_tests(sequences, repeat=2, verbose=1):
 def _runtime(sequences, repeat=2, verbose=1):
     '''Runs runtime tests and returns raw and summary statistics.
 
-    Arguments:
-        sequences {list} -- The pairs of sequences/subsequence sizes to test.
-
-    Keyword Arguments:
-        repeat {int} -- How many times to measure each algorithm.
-        verbose {int} -- Set to > 0 for different levels of outputs while
-            testing.
+    ...other argumeents: see the caller function
 
     Returns:
         DataFrame -- Raw results of all runs, as documented in the internal
             function.
-        DataFrame -- Summary results, with average runtime for each experiment.
     '''
     results_raw = _runtime_tests(sequences, repeat, verbose)
-
-    # Raw results - all data points
     results_raw_pd = pd.DataFrame(results_raw)
     results_raw_pd.columns = [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE,
                               DF_TEST_NUMBER, DF_EMPIRICAL_RT]
-
-    # Summary results - average runtime for each experiment
-    results_summary_pd = results_raw_pd.groupby(
-        [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE]).mean()
-    # Average of test number doesn't make sense, so drop it
-    results_summary_pd.drop([DF_TEST_NUMBER], axis='columns', inplace=True)
-    # Flatten the results to make it easier to understand and use in graphs
-    results_summary_pd.reset_index(inplace=True)
-
-    return results_raw_pd, results_summary_pd
+    return results_raw_pd
 
 
 def _memory(sequences, repeat=2, verbose=1):
     '''Runs memory usage tests and returns raw and summary statistics.
 
-    Arguments:
-        sequences {list} -- The pairs of sequences/subsequence sizes to test.
-
-    Keyword Arguments:
-        repeat {int} -- How many times to measure each algorithm.
-        verbose {int} -- Set to > 0 for different levels of outputs while
-            testing.
+    ...other argumeents: see the caller function
 
     Returns:
         DataFrame -- Raw results of all runs, as documented in the internal
             function.
-        DataFrame -- Summary results, with average memory usage for each
-            experiment.
     '''
     results_raw = _memory_tests(sequences, repeat, verbose)
-
-    # Raw results - all data points
     results_raw_pd = pd.DataFrame(results_raw)
     results_raw_pd.columns = [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE,
                               DF_TEST_NUMBER, DF_MEMORY, DF_EMPIRICAL_RT]
-
-    # Despite all tricks to set a memory baseline, it still returns a baseline
-    # that is larger than the memory used by the algorithm. This results in
-    # negative memory usage in some cases. To prevent those results from
-    # affecting the average, they are ignored for the computations.
-    # Summary results - average runtime for each experiment
-    non_negative = results_raw_pd[results_raw_pd[DF_MEMORY] >= 0]
-    results_summary_pd = non_negative.groupby([DF_ALGORITHM, DF_SEQ_SIZE,
-                                               DF_SUBSEQ_SIZE]).mean()
-    # Average of test number doesn't make sense, so drop it
-    results_summary_pd.drop([DF_TEST_NUMBER], axis='columns', inplace=True)
-    # Flatten the results to make it easier to understand and use in graphs
-    results_summary_pd.reset_index(inplace=True)
-
-    return results_raw_pd, results_summary_pd
+    return results_raw_pd
 
 
 def _run_experiment(experiment, sequences, repeat=2, verbose=1, file=None):
@@ -277,54 +226,100 @@ def _run_experiment(experiment, sequences, repeat=2, verbose=1, file=None):
     Arguments:
         experiment {function} -- The experiment to run, runtime or memory
             measurements.
+    ...other argumeents: see the caller function
+
+    Returns:
+        DataFrame -- Raw results of all runs, as documented in the internal
+            function.
+    '''
+    # Load from file, if there is one
+    if file is not None:
+        raw_file = file + '.csv'
+        if os.path.isfile(raw_file):
+            print('Loading from file')
+            all_results = pd.read_csv(raw_file, index_col=0)
+            return all_results
+
+    # Can't load from files or file name was not provided
+    # Run the experiments
+    all_results = experiment(sequences, repeat=repeat, verbose=verbose)
+
+    # Save to file, for the next time the function is called
+    if file is not None:
+        all_results.to_csv(file + '-raw.csv')
+
+    return all_results
+
+
+def runtime(sequences, repeat=2, verbose=1, file=None):
+    '''Run the runtime experiments.
+
+    Arguments:
         sequences {list} -- The pairs of sequences/subsequence sizes to test.
 
     Keyword Arguments:
         repeat {int} -- How many times to measure each algorithm.
         verbose {int} -- Set to > 0 for different levels of outputs while
             testing.
-        file {[strung]} -- Name of the file to read from (from a previous run),
-            or cached the results to if the experiment is executed.
+        file {[string]} -- Name of the file to read from (from a previous run),
+            or cache the results to if the experiment is executed.
 
     Returns:
         DataFrame -- Raw results of all runs, as documented in the internal
             function.
-        DataFrame -- Summary results, with average memory usage for each
+        DataFrame -- Summary results, with summarized results usage for each
             experiment.
     '''
-    # Load from file, if there is one
-    if file is not None:
-        raw_file = file + '-raw.csv'
-        summary_file = file + '-summary.csv'
+    all_results = _run_experiment(_runtime, sequences, repeat, verbose, file)
 
-        if os.path.isfile(raw_file) and os.path.isfile(summary_file):
-            print('Loading from file')
-            raw = pd.read_csv(raw_file, index_col=0)
-            summary = pd.read_csv(summary_file, index_col=0)
-            return raw, summary
+    # Summary results - average runtime for each experiment
+    summary = all_results.groupby(
+        [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE]).mean()
+    # Average of test number doesn't make sense, so drop it
+    summary.drop([DF_TEST_NUMBER], axis='columns', inplace=True)
+    # Flatten the results to make it easier to understand and use in graphs
+    summary.reset_index(inplace=True)
 
-    # Can't load from files or file name was not provided
-    # Run the experiments
-    raw, summary = experiment(sequences, repeat=repeat, verbose=verbose)
-
-    # Save to file, for the next time the function is called
-    if file is not None:
-        raw.to_csv(file + '-raw.csv')
-        summary.to_csv(file + '-summary.csv')
-
-    return raw, summary
-
-
-def runtime(sequences, repeat=2, verbose=1, file=None):
-    return _run_experiment(_runtime, sequences, repeat, verbose, file)
+    return all_results, summary
 
 
 def memory(sequences, repeat=2, verbose=1, file=None):
-    return _run_experiment(_memory, sequences, repeat, verbose, file)
+    '''Run the runtime experiments.
+
+    Arguments:
+        sequences {list} -- The pairs of sequences/subsequence sizes to test.
+
+    Keyword Arguments:
+        repeat {int} -- How many times to measure each algorithm.
+        verbose {int} -- Set to > 0 for different levels of outputs while
+            testing.
+        file {[string]} -- Name of the file to read from (from a previous run),
+            or cache the results to if the experiment is executed.
+
+    Returns:
+        DataFrame -- Raw results of all runs, as documented in the internal
+            function.
+        DataFrame -- Summary results, with summarized results usage for each
+            experiment.
+    '''
+    all_results = _run_experiment(_memory, sequences, repeat, verbose, file)
+
+    # Despite all tricks to set a memory baseline, it still returns a baseline
+    # that is larger than the memory used by the algorithm. As an attempt to
+    # get a better picture of memory usage, aggregate by max() in this case,
+    # not by average.
+    summary = all_results.groupby([DF_ALGORITHM, DF_SEQ_SIZE,
+                                   DF_SUBSEQ_SIZE]).max()
+    # Average of test number doesn't make sense, so drop it
+    summary.drop([DF_TEST_NUMBER], axis='columns', inplace=True)
+    # Flatten the results to make it easier to understand and use in graphs
+    summary.reset_index(inplace=True)
+
+    return all_results, summary
 
 
-def add_analysis(summary, alg):
-    '''Add analysis to a summary dataframe.
+def add_runtime_analysis(summary, alg):
+    '''Add runtime analysis to a summary dataframe.
 
     The following columns are added to the dataframe:
 
@@ -336,7 +331,7 @@ def add_analysis(summary, alg):
     Arguments:
         summary {DataFrame} -- A summary dataframe, created by running the
             experiments.
-        alg {string} -- What algorithm to analyze in the summary dataframe
+        alg {string} -- What algorithm to analyze in the summary dataframe.
 
     Returns:
         DataFrame -- A dataframe with entries for `alg`, augmented with the new
