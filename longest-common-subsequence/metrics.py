@@ -21,13 +21,18 @@ import lcs_recursive
 import lcs_test
 import lcs_utils
 
-# DataFrame columns
+# DataFrame columns - collected data
 DF_ALGORITHM = 'Algorithm'
 DF_SEQ_SIZE = 'Sequence size'
 DF_SUBSEQ_SIZE = 'Subsequence size'
 DF_TEST_NUMBER = 'Test number'
 DF_EMPIRICAL_RT = 'Empirical RT (ms)'
 DF_MEMORY = 'Memory (KiB)'
+# DataFrame columns - calculated data
+DF_THEORETICAL_COMPLEXITY = 'Theoretical complexity'
+DF_RATIO = 'Ratio'
+DF_PREDICTED_RT = 'Predicted RT'
+
 
 # Algorithm names
 ALG_BRUTE_FORCE = 'Brute force'
@@ -338,23 +343,19 @@ def add_analysis(summary, alg):
             columns.
         int -- The constant c calculated from the `alg` entries.
     '''
-    THEORETICAL_COMPLEXITY = 'Theoretical complexity'
-    RATIO = 'Ratio'
-    PREDICTED_RT = 'Predicted RT'
-
     df = summary[summary[DF_ALGORITHM] == alg]
 
     if alg == ALG_BRUTE_FORCE:
         # "/1" is a trick to force Pandas/NumPy to calculate with maximum
         # precision - without it, it overflows and sets the value to zero
-        df[THEORETICAL_COMPLEXITY] = 2 ** (df[DF_SUBSEQ_SIZE] / 1)
+        df[DF_THEORETICAL_COMPLEXITY] = 2 ** (df[DF_SUBSEQ_SIZE] / 1)
     else:
-        df[THEORETICAL_COMPLEXITY] = df[DF_SEQ_SIZE] * df[DF_SUBSEQ_SIZE]
+        df[DF_THEORETICAL_COMPLEXITY] = df[DF_SEQ_SIZE] * df[DF_SUBSEQ_SIZE]
 
-    df[RATIO] = df[DF_EMPIRICAL_RT] / df[THEORETICAL_COMPLEXITY]
-    c = max(df[RATIO])
-    df[PREDICTED_RT] = c * df[THEORETICAL_COMPLEXITY]
-    df['% error'] = (df[DF_EMPIRICAL_RT] - df[PREDICTED_RT]) / \
+    df[DF_RATIO] = df[DF_EMPIRICAL_RT] / df[DF_THEORETICAL_COMPLEXITY]
+    c = max(df[DF_RATIO])
+    df[DF_PREDICTED_RT] = c * df[DF_THEORETICAL_COMPLEXITY]
+    df['% error'] = (df[DF_EMPIRICAL_RT] - df[DF_PREDICTED_RT]) / \
         df[DF_EMPIRICAL_RT] * 100
 
     return df, c
