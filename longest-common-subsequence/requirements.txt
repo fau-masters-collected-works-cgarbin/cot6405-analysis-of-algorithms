@@ -3,3 +3,4 @@ pandas
 numba
 memory_profiler
 seaborn
+jupyterlab
