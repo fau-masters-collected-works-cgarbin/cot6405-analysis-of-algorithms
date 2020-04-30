@@ -33,7 +33,7 @@ DF_THEORETICAL_COMPLEXITY = 'Theoretical complexity'
 DF_RATIO = 'Ratio'
 DF_PREDICTED_RT = 'Predicted RT'
 DF_ERROR = '% error'
-DF_PREDICTED_SPACE = 'Theoretical space (MiB)'
+DF_PREDICTED_SPACE = 'Predicted space (MiB)'
 
 
 # Algorithm names
@@ -360,7 +360,7 @@ def add_runtime_analysis(summary, alg):
     return df, c
 
 
-def add_memory_analysis(summary, alg):
+def add_memory_analysis(summary):
     '''Add memory analysis to test results.
 
     The following columns are added to the dataframe:
@@ -372,35 +372,31 @@ def add_memory_analysis(summary, alg):
     Arguments:
         summary {DataFrame} -- A summary dataframe, created by running the
             experiments.
-        alg {string} -- What algorithm to analyze in the summary dataframe.
 
     Returns:
-        DataFrame -- A dataframe with entries for `alg`, augmented with the new
-            columns.
+        DataFrame -- The original dataframe, augmented with the new columns.
     '''
-    filter = summary[DF_ALGORITHM] == alg
-    df = summary[filter].copy()  # copy because we will change it
-
     INT32 = 4  # bytes in an int32
 
-    # Memory in bytes
-    if alg == ALG_BRUTE_FORCE:
-        df[DF_PREDICTED_SPACE] = df[DF_SUBSEQ_SIZE]
-    elif alg == ALG_DYNAMIC_PROGRAMMING:
-        df[DF_PREDICTED_SPACE] = df[DF_SEQ_SIZE] * df[DF_SUBSEQ_SIZE] * INT32
-    elif alg == ALG_HIRSCHBERG:
-        df[DF_PREDICTED_SPACE] = df[DF_SUBSEQ_SIZE] * INT32
+    def predicted_space(x):
+        # Memory in bytes
+        alg = x[DF_ALGORITHM]
+        if alg == ALG_BRUTE_FORCE:
+            return x[DF_SUBSEQ_SIZE]  # Uses one byte per character
+        elif alg == ALG_DYNAMIC_PROGRAMMING:
+            return x[DF_SEQ_SIZE] * x[DF_SUBSEQ_SIZE] * INT32
+        elif alg == ALG_HIRSCHBERG:
+            return x[DF_SUBSEQ_SIZE] * INT32
 
-    # Convert to MiB
-    df[DF_PREDICTED_SPACE] /= 1024 * 1024
+    summary[DF_PREDICTED_SPACE] = summary.apply(
+        predicted_space, axis='columns')
+    summary[DF_PREDICTED_SPACE] /= 1024 * 1024  # Convert to MiB
 
-    df[DF_ERROR] = (df[DF_EMPIRICAL_SPACE] - df[DF_PREDICTED_SPACE]) / \
-        df[DF_EMPIRICAL_SPACE] * 100
+    summary[DF_ERROR] = \
+        (summary[DF_EMPIRICAL_SPACE] - summary[DF_PREDICTED_SPACE]) / \
+        summary[DF_EMPIRICAL_SPACE] * 100
 
-    # Drop columns that are not needed for memory analysis
-    df.drop(DF_EMPIRICAL_RT, axis='columns', inplace=True)
-
-    return df
+    return summary
 
 
 if __name__ == "__main__":
