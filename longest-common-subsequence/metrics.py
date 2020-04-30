@@ -27,11 +27,13 @@ DF_SEQ_SIZE = 'Sequence size'
 DF_SUBSEQ_SIZE = 'Subsequence size'
 DF_TEST_NUMBER = 'Test number'
 DF_EMPIRICAL_RT = 'Empirical RT (ms)'
-DF_MEMORY = 'Memory (MiB)'
+DF_EMPIRICAL_SPACE = 'Empirical space (MiB)'
 # DataFrame columns - calculated data
 DF_THEORETICAL_COMPLEXITY = 'Theoretical complexity'
 DF_RATIO = 'Ratio'
 DF_PREDICTED_RT = 'Predicted RT'
+DF_ERROR = '% error'
+DF_PREDICTED_SPACE = 'Theoretical space (MiB)'
 
 
 # Algorithm names
@@ -216,7 +218,8 @@ def _memory(sequences, repeat=2, verbose=1):
     results_raw = _memory_tests(sequences, repeat, verbose)
     results_raw_pd = pd.DataFrame(results_raw)
     results_raw_pd.columns = [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE,
-                              DF_TEST_NUMBER, DF_MEMORY, DF_EMPIRICAL_RT]
+                              DF_TEST_NUMBER, DF_EMPIRICAL_SPACE,
+                              DF_EMPIRICAL_RT]
     return results_raw_pd
 
 
@@ -319,7 +322,7 @@ def memory(sequences, repeat=2, verbose=1, file=None):
 
 
 def add_runtime_analysis(summary, alg):
-    '''Add runtime analysis to a summary dataframe.
+    '''Add runtime analysis to test results.
 
     The following columns are added to the dataframe:
 
@@ -336,7 +339,7 @@ def add_runtime_analysis(summary, alg):
     Returns:
         DataFrame -- A dataframe with entries for `alg`, augmented with the new
             columns.
-        int -- The constant c calculated from the `alg` entries.
+        float -- The constant c calculated from the `alg` entries.
     '''
     filter = summary[DF_ALGORITHM] == alg
     df = summary[filter].copy()  # copy because we will change it
@@ -351,10 +354,53 @@ def add_runtime_analysis(summary, alg):
     df[DF_RATIO] = df[DF_EMPIRICAL_RT] / df[DF_THEORETICAL_COMPLEXITY]
     c = max(df[DF_RATIO])
     df[DF_PREDICTED_RT] = c * df[DF_THEORETICAL_COMPLEXITY]
-    df['% error'] = (df[DF_EMPIRICAL_RT] - df[DF_PREDICTED_RT]) / \
+    df[DF_ERROR] = (df[DF_EMPIRICAL_RT] - df[DF_PREDICTED_RT]) / \
         df[DF_EMPIRICAL_RT] * 100
 
     return df, c
+
+
+def add_memory_analysis(summary, alg):
+    '''Add memory analysis to test results.
+
+    The following columns are added to the dataframe:
+
+    - Predicted space
+    - % error, calculated as (empirical space - predicted space)/
+       empiricial space * 100
+
+    Arguments:
+        summary {DataFrame} -- A summary dataframe, created by running the
+            experiments.
+        alg {string} -- What algorithm to analyze in the summary dataframe.
+
+    Returns:
+        DataFrame -- A dataframe with entries for `alg`, augmented with the new
+            columns.
+    '''
+    filter = summary[DF_ALGORITHM] == alg
+    df = summary[filter].copy()  # copy because we will change it
+
+    INT32 = 4  # bytes in an int32
+
+    # Memory in bytes
+    if alg == ALG_BRUTE_FORCE:
+        df[DF_PREDICTED_SPACE] = df[DF_SUBSEQ_SIZE]
+    elif alg == ALG_DYNAMIC_PROGRAMMING:
+        df[DF_PREDICTED_SPACE] = df[DF_SEQ_SIZE] * df[DF_SUBSEQ_SIZE] * INT32
+    elif alg == ALG_HIRSCHBERG:
+        df[DF_PREDICTED_SPACE] = df[DF_SUBSEQ_SIZE] * INT32
+
+    # Convert to MiB
+    df[DF_PREDICTED_SPACE] /= 1024 * 1024
+
+    df[DF_ERROR] = (df[DF_EMPIRICAL_SPACE] - df[DF_PREDICTED_SPACE]) / \
+        df[DF_EMPIRICAL_SPACE] * 100
+
+    # Drop columns that are not needed for memory analysis
+    df.drop(DF_EMPIRICAL_RT, axis='columns', inplace=True)
+
+    return df
 
 
 if __name__ == "__main__":
