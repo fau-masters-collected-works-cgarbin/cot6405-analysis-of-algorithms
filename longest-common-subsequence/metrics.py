@@ -6,20 +6,15 @@ from memory_profiler import memory_usage
 import pandas as pd
 import random
 import time
-import lcs_empty
 import gc
 import os
 import sys
+import utils.lcs_empty as lcs_empty
+import utils.lcs_test as lcs_test
+import utils.lcs_utils as lcs_utils
 import lcs_brute_force
-import lcs_dynamic_programming_dict
-import lcs_dynamic_programming_matrix_python
 import lcs_dynamic_programming_matrix_numpy
-import lcs_hirschberg
 import lcs_hirschberg_numpy
-import lcs_hirschberg_numpy_slices
-import lcs_recursive
-import lcs_test
-import lcs_utils
 
 # DataFrame columns - collected data
 DF_ALGORITHM = 'Algorithm'
@@ -237,7 +232,8 @@ def _run_experiment(experiment, sequences, repeat=2, verbose=1, file=None):
     '''
     # Load from file, if there is one
     if file is not None:
-        raw_file = file + '.csv'
+        os.makedirs('data', exist_ok=True)
+        raw_file = 'data/' + file + '.csv'
         if os.path.isfile(raw_file):
             print('Loading from file')
             all_results = pd.read_csv(raw_file, index_col=0)
@@ -249,7 +245,7 @@ def _run_experiment(experiment, sequences, repeat=2, verbose=1, file=None):
 
     # Save to file, for the next time the function is called
     if file is not None:
-        all_results.to_csv(file + '-raw.csv')
+        all_results.to_csv('data/' + file + '.csv')
 
     return all_results
 
@@ -406,7 +402,7 @@ if __name__ == "__main__":
 
     # For consistency across runs
     random.seed(42)
-    lcs_test.test(visualize=True)
+    lcs_test.test([alg[0] for alg in algorithms], visualize=True)
 
     test = sys.argv[1]
     if test == "phase1":
@@ -415,7 +411,7 @@ if __name__ == "__main__":
         memory(seq_phase1, repeat=1, verbose=2, file='memory-phase1')
     elif test == "phase2":
         print('Running phase 2 tests')
-        runtime(seq_phase2, repeat=10, verbose=2, file='runtime-phase2')
-        memory(seq_phase2, repeat=10, verbose=2, file='memory-phase2')
+        runtime(seq_phase2, repeat=1, verbose=2, file='runtime-phase2')
+        memory(seq_phase2, repeat=1, verbose=2, file='memory-phase2')
     else:
         print('Specify phase1 or phase2')

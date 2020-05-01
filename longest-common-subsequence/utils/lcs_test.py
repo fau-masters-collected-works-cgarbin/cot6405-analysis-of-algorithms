@@ -2,34 +2,7 @@
 
 Run this code after making changes to the algorithms.
 '''
-import lcs_brute_force
-import lcs_dynamic_programming_dict
-import lcs_dynamic_programming_matrix_python
-import lcs_dynamic_programming_matrix_numpy
-import lcs_hirschberg
-import lcs_hirschberg_numpy
-import lcs_hirschberg_numpy_slices
-import lcs_recursive
-import lcs_utils
-
-# All algorithms
-algorithms_all = [
-    lcs_brute_force.lcs,
-    lcs_recursive.lcs,
-    lcs_dynamic_programming_dict.lcs,
-    lcs_dynamic_programming_matrix_python.lcs,
-    lcs_dynamic_programming_matrix_numpy.lcs,
-    lcs_hirschberg.lcs,
-    lcs_hirschberg_numpy.lcs,
-    lcs_hirschberg_numpy_slices.lcs,
-]
-
-# Algorithms used in the report
-algorithms_report = [
-    lcs_brute_force.lcs,
-    lcs_dynamic_programming_matrix_numpy.lcs,
-    lcs_hirschberg_numpy.lcs,
-]
+from . import lcs_utils
 
 
 def _test_lcs(alg, xs, ys, expected=None):
@@ -108,7 +81,7 @@ def _test_dna_strand(algorithms):
     print('All DNA tests passed')
 
 
-def test(visualize=False, all_algorithms=False):
+def test(algorithms, visualize=False):
     '''Tests if the algorithms are working correctly.
 
     Two tests are executed:
@@ -117,16 +90,15 @@ def test(visualize=False, all_algorithms=False):
     2. A test with large sequence, to account for possible corner cases
        with large sequences.
 
+    Arguments:
+        algorithms {list} -- list of LCS algorithms to test.
+
     Keyword Arguments:
         visualize {bool} -- set to True to see examples of subsequences found
             found by the algorithms. This is an extra check, to visualize
             inspect the results, in case the test code itself is under
             suspicion.
-        all_algorithms {bool} -- set to True to test all algorithms, or False
-            to test only the algorithms used in the report.
     '''
-    algorithms = algorithms_all if all_algorithms else algorithms_report
-
     _test_basic_cases(algorithms)
     _test_dna_strand(algorithms)
 

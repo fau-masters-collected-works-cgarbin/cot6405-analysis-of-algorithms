@@ -1,4 +1,4 @@
-'''LCS Hirschberg Linear Space.
+w'''LCS Hirschberg Linear Space.
 
 It requires a linear amount of memory, compared to the quadratic amount of
 memory used by the dynamic programming version.
