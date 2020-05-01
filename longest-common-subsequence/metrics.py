@@ -144,7 +144,7 @@ def _memory_tests(sequences, repeat=2, verbose=1):
 
     # Run one test
     def _run_test(alg, seq_size, subseq_size):
-        # Garbage-collec to not measure memory left over from other runs
+        # Garbage-collect to not measure memory left over from other runs
         gc.collect()
 
         # Get the current memory usage of the Python environment
@@ -415,7 +415,7 @@ if __name__ == "__main__":
         memory(seq_phase1, repeat=1, verbose=2, file='memory-phase1')
     elif test == "phase2":
         print('Running phase 2 tests')
-        runtime(seq_phase2, repeat=1, verbose=2, file='runtime-phase2')
-        memory(seq_phase2, repeat=1, verbose=2, file='memory-phase2')
+        runtime(seq_phase2, repeat=10, verbose=2, file='runtime-phase2')
+        memory(seq_phase2, repeat=10, verbose=2, file='memory-phase2')
     else:
         print('Specify phase1 or phase2')
