@@ -90,7 +90,7 @@ def _runtime_tests(sequences, repeat=2, verbose=1):
 
     # Run all tests
     for dna_size, dna_strand_size in sequences:
-        # Create the test strings only once to correcly compare algorithms
+        # Create the test strings only once to correctly compare algorithms
         dna = lcs_utils.random_dna_sequence(dna_size)
         dna_strand = lcs_utils.random_dna_sequence(dna_strand_size)
         if verbose >= 1:
