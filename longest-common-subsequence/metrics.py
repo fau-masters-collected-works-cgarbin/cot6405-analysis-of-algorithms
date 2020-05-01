@@ -395,6 +395,10 @@ def add_memory_analysis(summary):
     return summary
 
 
+def test():
+    lcs_test.test([alg[0] for alg in algorithms], visualize=True)
+
+
 if __name__ == "__main__":
     if len(sys.argv) is not 2:
         print('Specify phase1 or phase2')
@@ -402,7 +406,7 @@ if __name__ == "__main__":
 
     # For consistency across runs
     random.seed(42)
-    lcs_test.test([alg[0] for alg in algorithms], visualize=True)
+    test()
 
     test = sys.argv[1]
     if test == "phase1":
