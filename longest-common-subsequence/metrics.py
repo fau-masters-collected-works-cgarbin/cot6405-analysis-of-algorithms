@@ -271,10 +271,17 @@ def runtime(sequences, repeat=2, verbose=1, file=None):
     '''
     all_results = _run_experiment(_runtime, sequences, repeat, verbose, file)
 
+    # Filter out outliers to build summary statistics
+    # Outliers are calcucaled for each experiment, i.e. for each combination of
+    # algorith/sequence/subsequence
+    include = all_results[~all_results.groupby(
+        [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE])[DF_EMPIRICAL_RT]
+        .apply(lcs_utils.is_outlier)]
+
     # Summary results - average runtime for each experiment
-    summary = all_results.groupby(
+    summary = include.groupby(
         [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE]).mean()
-    # Average of test number doesn't make sense, so drop it
+    # Aggregate of test number doesn't make sense, so drop it
     summary.drop([DF_TEST_NUMBER], axis='columns', inplace=True)
     # Flatten the results to make it easier to understand and use in graphs
     summary.reset_index(inplace=True)
@@ -303,13 +310,20 @@ def memory(sequences, repeat=2, verbose=1, file=None):
     '''
     all_results = _run_experiment(_memory, sequences, repeat, verbose, file)
 
+    # Filter out outliers to build summary statistics
+    # Outliers are calcucaled for each experiment, i.e. for each combination of
+    # algorith/sequence/subsequence
+    include = all_results[~all_results.groupby(
+        [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE])[DF_EMPIRICAL_SPACE]
+        .apply(lcs_utils.is_outlier)]
+
     # Despite all tricks to set a memory baseline, it still returns a baseline
     # that is larger than the memory used by the algorithm. As an attempt to
     # get a better picture of memory usage, aggregate by max() in this case,
     # not by average.
-    summary = all_results.groupby([DF_ALGORITHM, DF_SEQ_SIZE,
-                                   DF_SUBSEQ_SIZE]).max()
-    # Average of test number doesn't make sense, so drop it
+    summary = include.groupby(
+        [DF_ALGORITHM, DF_SEQ_SIZE, DF_SUBSEQ_SIZE]).max()
+    # Aggregation of test number doesn't make sense, so drop it
     summary.drop([DF_TEST_NUMBER], axis='columns', inplace=True)
     # Flatten the results to make it easier to understand and use in graphs
     summary.reset_index(inplace=True)

@@ -68,6 +68,32 @@ def random_dna_sequence(length):
     return ''.join(random.choice('ACTG') for _ in range(length))
 
 
+def is_outlier(s):
+    """Filter out outliers from a Pandas Seriers.
+
+    Outliers are defined as "outside of a specific standard deviation range".
+    This leaves still a large number of data points, while removing the ones
+    that are truly way out there and could skew the calculations.
+
+    Arguments:
+        s {Pandas Series of floats} -- The range to be inspected.
+
+    Returns:
+        Array of bools -- For each member of `s`, True if it's an outlier,
+            or False if not.
+    """
+    if len(s) >= 2:
+        boundary = s.std() * 3
+        lower_limit = s.mean() - boundary
+        upper_limit = s.mean() + boundary
+    else:
+        # Smaller series don't have outliers by definition
+        lower_limit = s.min()
+        upper_limit = s.max()
+
+    return ~ s.between(lower_limit, upper_limit)
+
+
 # Subsequence matching code is crucial for this module to work
 # Test it every time this module is imported
 _test_subseqence_match()
