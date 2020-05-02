@@ -9,4 +9,5 @@ pandoc --template eisvogel --listings \
    -V header-left:"COT 6405 Spring 2020" \
    -V header-right:"Longest Common Subsequence" \
    -V code-block-font-size:"\scriptsize" \
+   -f ipynb+table_captions \
    report.ipynb -o report.pdf
