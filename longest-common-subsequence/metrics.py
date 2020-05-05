@@ -1,4 +1,4 @@
-#!../env/bin/python
+#!./env/bin/python
 '''Run the experiments and collect metrics.
 '''
 from collections import namedtuple
